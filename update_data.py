@@ -88,9 +88,14 @@ CHECKPOINT_EVERY = 5
 
 IST = timezone(timedelta(hours=5, minutes=30))
 
+# Periods measured in TRADING SESSIONS, not calendar days. Three calendar days
+# back from a Monday lands on the same Friday close as one session back, so
+# every Monday build would report an identical 1D and 3D. Sessions avoid that.
+SESSION_PERIODS: Dict[str, int] = {"1D": 1, "3D": 3}
+
 PERIODS: List[Tuple[str, Optional[Callable[[date], date]]]] = [
     ("1D", None),
-    ("3D", lambda d: d - timedelta(days=3)),
+    ("3D", None),
     ("1W", lambda d: d - timedelta(weeks=1)),
     ("2W", lambda d: d - timedelta(weeks=2)),
     ("1M", lambda d: d - relativedelta(months=1)),
@@ -392,11 +397,13 @@ def compute_returns(
     latest_close = float(series.iloc[-1])
     as_of = latest_timestamp.strftime("%Y-%m-%d")
 
-    if len(series) >= 2:
-        previous_close = float(series.iloc[-2])
-        if previous_close > 0:
-            returns["1D"] = round(
-                (latest_close - previous_close) / previous_close * 100.0, 2
+    for label, sessions in SESSION_PERIODS.items():
+        if len(series) < sessions + 1:
+            continue
+        base_close = float(series.iloc[-(sessions + 1)])
+        if base_close > 0:
+            returns[label] = round(
+                (latest_close - base_close) / base_close * 100.0, 2
             )
 
     latest_date = latest_timestamp.to_pydatetime().date()
@@ -463,6 +470,7 @@ _STOCK_CACHE: Dict[str, Optional[Dict[str, Any]]] = {}
 ADJUSTMENTS: Dict[str, List[Dict[str, Any]]] = {}
 # symbol -> every index that contains it. Free: built from data already fetched.
 MEMBERSHIP: Dict[str, List[str]] = {}
+SPAN_LOGGED: set = set()
 
 
 def fetch_index_row(client: "NSE", index_name: str) -> Optional[Dict[str, Any]]:
@@ -487,6 +495,7 @@ def fetch_index_row(client: "NSE", index_name: str) -> Optional[Dict[str, Any]]:
         "close": close,
         "as_of": as_of,
         "sessions": int(len(series)) if series is not None else 0,
+        "from": series.index[0].strftime("%Y-%m-%d") if series is not None else None,
     }
     row.update(returns)
     return row
@@ -512,6 +521,15 @@ def fetch_stock_row(client: "NSE", symbol: str) -> Optional[Dict[str, Any]]:
         _STOCK_CACHE[symbol] = None
         return None
 
+    if len(SPAN_LOGGED) < 5:
+        SPAN_LOGGED.add(symbol)
+        log(
+            f"    span[{symbol}] {len(series)} sessions "
+            f"{series.index[0].date()} -> {series.index[-1].date()}"
+        )
+    if len(series) < 150:
+        log(f"    ? {symbol}: only {len(series)} sessions - long horizons will be thin")
+
     if events:
         ADJUSTMENTS[symbol] = events
         ratios = ", ".join(f"{e['date']} x{e['ratio']:.4f}" for e in events)
@@ -522,6 +540,8 @@ def fetch_stock_row(client: "NSE", symbol: str) -> Optional[Dict[str, Any]]:
         "close": close,
         "as_of": as_of,
         "adjusted": bool(events),
+        "sessions": int(len(series)),
+        "from": series.index[0].strftime("%Y-%m-%d"),
     }
     row.update(returns)
     _STOCK_CACHE[symbol] = row
@@ -760,6 +780,16 @@ def main() -> int:
             pass
 
     checkpoint(indices_payload, shard_map, finished=True, started=started)
+
+    priced = [r for r in _STOCK_CACHE.values() if r]
+    if priced:
+        spans = sorted(r.get("sessions", 0) for r in priced)
+        median_span = spans[len(spans) // 2]
+        thin = sum(1 for n in spans if n < 150)
+        log(
+            f"coverage: median {median_span} sessions per symbol, "
+            f"min {spans[0]}, max {spans[-1]}, {thin} symbols under 150 sessions"
+        )
 
     log(
         f"done in {(time.time() - started) / 60:.1f} min - "
