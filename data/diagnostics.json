@@ -140,6 +140,14 @@
     "raw_close": 2837.6
    }
   ],
+  "HDFCAMC": [
+   {
+    "date": "2025-11-26",
+    "ratio": 0.502014,
+    "raw_prev_close": 5336.5,
+    "raw_close": 2679.0
+   }
+  ],
   "ADANIPOWER": [
    {
     "date": "2025-09-22",
@@ -154,14 +162,6 @@
     "ratio": 0.351021,
     "raw_prev_close": 773.6,
     "raw_close": 271.55
-   }
-  ],
-  "HDFCAMC": [
-   {
-    "date": "2025-11-26",
-    "ratio": 0.502014,
-    "raw_prev_close": 5336.5,
-    "raw_close": 2679.0
    }
   ],
   "PIDILITIND": [
@@ -252,12 +252,12 @@
     "raw_close": 775.7
    }
   ],
-  "NUVAMA": [
+  "LALPATHLAB": [
    {
-    "date": "2025-12-26",
-    "ratio": 0.196126,
-    "raw_prev_close": 7615.0,
-    "raw_close": 1493.5
+    "date": "2025-12-19",
+    "ratio": 0.498139,
+    "raw_prev_close": 2793.6,
+    "raw_close": 1391.6
    }
   ],
   "SCHNEIDER": [
@@ -268,14 +268,6 @@
     "raw_close": 1244.7
    }
   ],
-  "ZYDUSWELL": [
-   {
-    "date": "2025-09-18",
-    "ratio": 0.20204,
-    "raw_prev_close": 2578.2,
-    "raw_close": 520.9
-   }
-  ],
   "ECLERX": [
    {
     "date": "2026-03-13",
@@ -284,20 +276,28 @@
     "raw_close": 1576.6
    }
   ],
+  "NUVAMA": [
+   {
+    "date": "2025-12-26",
+    "ratio": 0.196126,
+    "raw_prev_close": 7615.0,
+    "raw_close": 1493.5
+   }
+  ],
+  "ZYDUSWELL": [
+   {
+    "date": "2025-09-18",
+    "ratio": 0.20204,
+    "raw_prev_close": 2578.2,
+    "raw_close": 520.9
+   }
+  ],
   "ANANDRATHI": [
    {
     "date": "2026-06-03",
     "ratio": 0.504394,
     "raw_prev_close": 3539.3,
     "raw_close": 1785.2
-   }
-  ],
-  "LALPATHLAB": [
-   {
-    "date": "2025-12-19",
-    "ratio": 0.498139,
-    "raw_prev_close": 2793.6,
-    "raw_close": 1391.6
    }
   ],
   "IEX": [
@@ -404,20 +404,20 @@
     "raw_close": 495.7
    }
   ],
-  "SANDUMA": [
-   {
-    "date": "2025-09-22",
-    "ratio": 0.334833,
-    "raw_prev_close": 478.0,
-    "raw_close": 160.05
-   }
-  ],
   "BECTORFOOD": [
    {
     "date": "2025-12-12",
     "ratio": 0.206976,
     "raw_prev_close": 1310.3,
     "raw_close": 271.2
+   }
+  ],
+  "SANDUMA": [
+   {
+    "date": "2025-09-22",
+    "ratio": 0.334833,
+    "raw_prev_close": 478.0,
+    "raw_close": 160.05
    }
   ],
   "WEBELSOLAR": [
@@ -428,12 +428,12 @@
     "raw_close": 132.1
    }
   ],
-  "KIRLPNU": [
+  "JLHL": [
    {
-    "date": "2026-08-18",
-    "ratio": 0.49547,
-    "raw_prev_close": 1534.3,
-    "raw_close": 760.2
+    "date": "2026-07-24",
+    "ratio": 0.205272,
+    "raw_prev_close": 1574.5,
+    "raw_close": 323.2
    }
   ],
   "METROPOLIS": [
@@ -444,12 +444,12 @@
     "raw_close": 441.1
    }
   ],
-  "JLHL": [
+  "KIRLPNU": [
    {
-    "date": "2026-07-24",
-    "ratio": 0.205272,
-    "raw_prev_close": 1574.5,
-    "raw_close": 323.2
+    "date": "2026-08-18",
+    "ratio": 0.49547,
+    "raw_prev_close": 1534.3,
+    "raw_close": 760.2
    }
   ],
   "SKFINDIA": [

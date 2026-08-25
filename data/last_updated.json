@@ -1,11 +1,11 @@
 {
- "last_updated": "2026-08-25T14:39:33+05:30",
- "last_updated_utc": "2026-08-25T09:09:33+00:00",
+ "last_updated": "2026-08-25T16:54:54+05:30",
+ "last_updated_utc": "2026-08-25T11:24:54+00:00",
  "indices_count": 139,
  "indices_with_stocks": 139,
  "unique_symbols": 872,
  "symbols_adjusted": 51,
  "failures": 0,
- "runtime_minutes": 51.9,
+ "runtime_minutes": 55.1,
  "complete": true
 }
