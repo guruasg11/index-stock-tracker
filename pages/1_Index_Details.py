@@ -1,26 +1,28 @@
 """
 pages/1_Index_Details.py
 ========================
-Detail page for a single NSE index.
+Constituents and returns for one NSE index.
 
-Reads data/indices.json and data/stocks.json from disk only.
-Makes no live NSE calls.
+Reads data/*.json from disk only. Makes no live NSE calls.
 """
 
 from __future__ import annotations
 
 import json
 import os
+import re
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional
 
+import numpy as np
 import pandas as pd
 import streamlit as st
 
 st.set_page_config(
-    page_title="Index Details",
+    page_title="Index constituents",
     page_icon=":bar_chart:",
     layout="wide",
+    initial_sidebar_state="collapsed",
 )
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -28,16 +30,98 @@ ROOT = os.path.dirname(HERE)
 DATA_DIR = os.path.join(ROOT, "data")
 
 RETURN_COLS = ["1D", "3D", "1W", "2W", "1M", "2M", "3M", "6M", "1Y"]
+HORIZON_NAMES = {
+    "1D": "1 day", "3D": "3 days", "1W": "1 week", "2W": "2 weeks",
+    "1M": "1 month", "2M": "2 months", "3M": "3 months",
+    "6M": "6 months", "1Y": "1 year",
+}
 HOME_PAGE = "app.py"
 
+INK = "#12263A"
+RULE = "#DCE1E8"
+PETROL = "#1F5673"
+UP = (15, 122, 78)
+DOWN = (192, 57, 43)
 
-# --------------------------------------------------------------------------
-# Data loading
-# --------------------------------------------------------------------------
+
+def inject_css() -> None:
+    st.markdown(
+        f"""
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@600&display=swap');
+
+        html, body, [class*="st-"] {{ font-family: 'IBM Plex Sans', system-ui, sans-serif; }}
+        .block-container {{ padding-top: 2.2rem; max-width: 1500px; }}
+        #MainMenu, footer {{ visibility: hidden; }}
+
+        .masthead {{
+            border-top: 3px solid {INK}; border-bottom: 1px solid {RULE};
+            padding: 0.9rem 0 1.1rem 0; margin-bottom: 1.4rem;
+            display: flex; flex-wrap: wrap;
+            align-items: baseline; justify-content: space-between; gap: 1rem;
+        }}
+        .masthead .eyebrow {{
+            font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem;
+            letter-spacing: 0.16em; text-transform: uppercase; color: {PETROL};
+            display: block; margin-bottom: 0.35rem;
+        }}
+        .masthead h1 {{
+            font-family: 'IBM Plex Serif', Georgia, serif; font-size: 2.05rem;
+            font-weight: 600; line-height: 1.1; color: {INK}; margin: 0; padding: 0;
+        }}
+        .masthead .stamp {{
+            font-family: 'IBM Plex Mono', monospace; font-size: 0.74rem;
+            color: #5B6B7C; text-align: right; line-height: 1.6;
+        }}
+        .masthead .stamp b {{ color: {INK}; font-weight: 600; }}
+
+        .tape {{ margin: 0 0 1.5rem 0; }}
+        .tape .bar {{
+            display: flex; height: 9px; width: 100%;
+            border-radius: 1px; overflow: hidden; background: {RULE};
+        }}
+        .tape .bar span {{ display: block; height: 100%; }}
+        .tape .legend {{
+            display: flex; justify-content: space-between;
+            font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem;
+            color: #5B6B7C; margin-top: 0.4rem;
+        }}
+        .tape .legend b {{ color: {INK}; font-weight: 600; }}
+
+        .chips {{ display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.2rem 0 1.4rem 0; }}
+        .chip {{
+            flex: 1 1 104px; border: 1px solid {RULE}; border-top: 2px solid {INK};
+            background: #FFFFFF; padding: 0.6rem 0.7rem 0.65rem 0.7rem;
+        }}
+        .chip .k {{
+            font-family: 'IBM Plex Mono', monospace; font-size: 0.66rem;
+            letter-spacing: 0.12em; color: #5B6B7C; text-transform: uppercase;
+        }}
+        .chip .v {{
+            font-family: 'IBM Plex Mono', monospace; font-size: 1.16rem;
+            font-weight: 600; margin-top: 0.2rem; font-variant-numeric: tabular-nums;
+        }}
+        .chip.up {{ border-top-color: rgb{UP}; }}
+        .chip.up .v {{ color: rgb{UP}; }}
+        .chip.down {{ border-top-color: rgb{DOWN}; }}
+        .chip.down .v {{ color: rgb{DOWN}; }}
+        .chip.flat .v {{ color: #5B6B7C; }}
+
+        .note {{
+            font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem;
+            color: #5B6B7C; border-left: 2px solid {RULE};
+            padding-left: 0.7rem; margin-top: 1.2rem; line-height: 1.7;
+        }}
+        div[data-testid="stDataFrame"] {{ font-variant-numeric: tabular-nums; }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
 
 @st.cache_data(ttl=300, show_spinner=False)
-def load_json(filename: str) -> Optional[Any]:
-    path = os.path.join(DATA_DIR, filename)
+def load_json(relative_path: str) -> Optional[Any]:
+    path = os.path.join(DATA_DIR, relative_path)
     if not os.path.exists(path):
         return None
     try:
@@ -50,147 +134,230 @@ def load_json(filename: str) -> Optional[Any]:
     return payload
 
 
-def format_last_updated(payload: Optional[dict]) -> str:
-    if not isinstance(payload, dict):
-        return "unknown"
-    raw = payload.get("last_updated")
+def slugify(name: str) -> str:
+    """Must mirror update_data.slugify exactly."""
+    slug = re.sub(r"[^A-Z0-9]+", "_", str(name).upper()).strip("_")
+    return (slug or "INDEX")[:80]
+
+
+def stamp(meta: Optional[dict]) -> str:
+    if not isinstance(meta, dict):
+        return "not yet built"
+    raw = meta.get("last_updated")
     if not raw:
-        return "unknown"
+        return "not yet built"
     try:
-        parsed = datetime.fromisoformat(str(raw))
+        return datetime.fromisoformat(str(raw)).strftime("%d %b %Y &middot; %H:%M IST")
     except ValueError:
         return str(raw)
-    return parsed.strftime("%d %b %Y, %H:%M IST")
 
 
-def stock_column_config() -> dict:
-    config = {
-        "symbol": st.column_config.TextColumn("Symbol", width="medium"),
-        "close": st.column_config.NumberColumn("Close", format="%.2f"),
-        "as_of": st.column_config.TextColumn("As of"),
+def masthead(eyebrow: str, heading: str, right_html: str) -> None:
+    st.markdown(
+        f'<div class="masthead"><div><span class="eyebrow">{eyebrow}</span>'
+        f'<h1>{heading}</h1></div><div class="stamp">{right_html}</div></div>',
+        unsafe_allow_html=True,
+    )
+
+
+def breadth_tape(values: pd.Series, horizon: str, unit: str) -> None:
+    clean = pd.to_numeric(values, errors="coerce").dropna()
+    if clean.empty:
+        return
+    advancing = int((clean > 0).sum())
+    declining = int((clean < 0).sum())
+    unchanged = int(len(clean) - advancing - declining)
+    total = max(len(clean), 1)
+    up_pct = advancing / total * 100.0
+    down_pct = declining / total * 100.0
+    flat_pct = max(0.0, 100.0 - up_pct - down_pct)
+    st.markdown(
+        f"""
+        <div class="tape">
+          <div class="bar">
+            <span style="width:{up_pct:.2f}%;background:rgb{UP};"></span>
+            <span style="width:{flat_pct:.2f}%;background:{RULE};"></span>
+            <span style="width:{down_pct:.2f}%;background:rgb{DOWN};"></span>
+          </div>
+          <div class="legend">
+            <div><b>{advancing}</b> advancing &nbsp;/&nbsp; <b>{unchanged}</b> flat
+                 &nbsp;/&nbsp; <b>{declining}</b> declining</div>
+            <div>{unit} breadth over {HORIZON_NAMES[horizon]} &nbsp;&middot;&nbsp;
+                 median <b>{clean.median():+.2f}%</b></div>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def cell_css(value: Any, scale: float) -> str:
+    if value is None or (isinstance(value, float) and np.isnan(value)):
+        return "color:#AAB3BD;"
+    try:
+        magnitude = min(abs(float(value)) / scale, 1.0)
+    except (TypeError, ValueError):
+        return ""
+    alpha = 0.08 + 0.5 * magnitude
+    rgb = UP if float(value) >= 0 else DOWN
+    weight = "600" if magnitude > 0.55 else "500"
+    return (
+        f"background-color:rgba({rgb[0]},{rgb[1]},{rgb[2]},{alpha:.3f});"
+        f"color:{INK};font-weight:{weight};"
+    )
+
+
+def heatmap(frame: pd.DataFrame, columns: List[str]) -> Any:
+    styler = frame.style
+    for column in columns:
+        series = pd.to_numeric(frame[column], errors="coerce").dropna()
+        scale = float(np.percentile(series.abs(), 85)) if len(series) else 0.0
+        scale = max(scale, 0.5)
+        styler = styler.apply(
+            lambda col, sc=scale: [cell_css(v, sc) for v in col], subset=[column]
+        )
+    return styler
+
+
+def return_columns() -> Dict[str, Any]:
+    return {
+        column: st.column_config.NumberColumn(
+            column, format="%.2f%%", help=HORIZON_NAMES[column]
+        )
+        for column in RETURN_COLS
     }
-    for column in RETURN_COLS:
-        config[column] = st.column_config.NumberColumn(column, format="%.2f%%")
-    return config
 
 
-def back_button(key: str) -> None:
-    if st.button(":arrow_left: Back to all indices", key=key):
+def back(key: str) -> None:
+    if st.button("← All indices", key=key):
         st.switch_page(HOME_PAGE)
 
 
 # --------------------------------------------------------------------------
-# Guard: an index must have been selected
+# Guard
 # --------------------------------------------------------------------------
 
+inject_css()
+
 selected_index = st.session_state.get("selected_index")
+horizon = st.session_state.get("horizon", "1M")
+if horizon not in RETURN_COLS:
+    horizon = "1M"
 
 if not selected_index:
-    st.warning("No index selected. Go back and pick one from the list.")
-    back_button("back_no_selection")
+    masthead("NSE &middot; constituents", "No index chosen", "")
+    st.info("Pick an index from the main table to see its constituents.")
+    back("back_none")
     st.stop()
 
-back_button("back_top")
-st.title(str(selected_index))
-
 meta = load_json("last_updated.json")
-st.caption(f"Data last updated: **{format_last_updated(meta)}**")
-
 indices_data = load_json("indices.json")
 
 if not indices_data:
-    st.warning(
-        "No data yet — waiting for the first scheduled run. "
-        "Trigger *Update NSE data* from the repo's **Actions** tab to build it now."
-    )
+    masthead("NSE &middot; constituents", str(selected_index), "no data on disk")
+    st.warning("`data/indices.json` is missing. Run **Update NSE data** from the Actions tab.")
+    back("back_nodata")
     st.stop()
 
 index_row = next(
     (
-        row
-        for row in indices_data
+        row for row in indices_data
         if isinstance(row, dict) and str(row.get("index", "")) == str(selected_index)
     ),
     None,
 )
 
 if index_row is None:
-    st.error(f"'{selected_index}' is not present in `data/indices.json`.")
-    back_button("back_missing_index")
+    masthead("NSE &middot; constituents", str(selected_index), "not in this build")
+    st.error(f"“{selected_index}” is not in the current data. It may have been renamed or delisted.")
+    back("back_missing")
     st.stop()
 
 
 # --------------------------------------------------------------------------
-# Index-level returns
+# Index header and its own nine returns
 # --------------------------------------------------------------------------
 
-summary_left, summary_right = st.columns(2)
-with summary_left:
-    close = index_row.get("close")
-    st.metric("Close", f"{close:,.2f}" if isinstance(close, (int, float)) else "—")
-with summary_right:
-    st.metric("As of", index_row.get("as_of") or "—")
+back("back_top")
 
-st.subheader("Index returns")
+close = index_row.get("close")
+masthead(
+    "NSE &middot; index constituents &middot; price returns",
+    str(selected_index),
+    f"close <b>{close:,.2f}</b><br>as of <b>{index_row.get('as_of') or '—'}</b><br>"
+    f"built {stamp(meta)}" if isinstance(close, (int, float))
+    else f"as of <b>{index_row.get('as_of') or '—'}</b><br>built {stamp(meta)}",
+)
 
-
-def render_metrics(row: dict, labels: list) -> None:
-    columns = st.columns(len(labels))
-    for column, label in zip(columns, labels):
-        value = row.get(label)
-        if isinstance(value, (int, float)):
-            column.metric(label, f"{value:.2f}%", delta=f"{value:.2f}%")
-        else:
-            column.metric(label, "—")
-
-
-render_metrics(index_row, RETURN_COLS[:5])
-render_metrics(index_row, RETURN_COLS[5:])
-
-st.divider()
+cards = []
+for column in RETURN_COLS:
+    value = index_row.get(column)
+    if isinstance(value, (int, float)):
+        tone = "up" if value > 0 else ("down" if value < 0 else "flat")
+        text = f"{value:+.2f}%"
+    else:
+        tone, text = "flat", "—"
+    cards.append(
+        f'<div class="chip {tone}"><div class="k">{HORIZON_NAMES[column]}</div>'
+        f'<div class="v">{text}</div></div>'
+    )
+st.markdown(f'<div class="chips">{"".join(cards)}</div>', unsafe_allow_html=True)
 
 
 # --------------------------------------------------------------------------
-# Constituent stocks
+# Constituents
 # --------------------------------------------------------------------------
 
-st.subheader("Constituent stocks")
+shard_map = load_json("stocks_index.json") or {}
+shard_name = shard_map.get(str(selected_index)) if isinstance(shard_map, dict) else None
+if not shard_name:
+    shard_name = f"{slugify(selected_index)}.json"
 
-stocks_data = load_json("stocks.json")
-constituents = []
-if isinstance(stocks_data, dict):
-    constituents = stocks_data.get(str(selected_index)) or []
+constituents = load_json(os.path.join("stocks", shard_name)) or []
 
 if not constituents:
     st.info(
-        "No constituent data for this index. "
-        "This is expected for non-equity indices (G-Sec, fixed income, strategy indices), "
-        "or the constituents may not have been fetched in the last run."
+        "No constituents on file for this index. NSE returns an equity list only for "
+        "equity indices — fixed income, G-Sec and some strategy indices have none. "
+        "If you expected stocks here, check the last job ran with **Build indices "
+        "only** set to `0`."
     )
-    back_button("back_no_constituents")
+    back("back_nostocks")
     st.stop()
 
 frame = pd.DataFrame(constituents)
-
 if "symbol" not in frame.columns:
-    st.error("`data/stocks.json` is malformed — no `symbol` column found.")
-    back_button("back_malformed_stocks")
+    st.error("The constituent file has no `symbol` column. Re-run the daily job.")
+    back("back_malformed")
     st.stop()
 
 for column in RETURN_COLS + ["close"]:
     if column not in frame.columns:
-        frame[column] = None
+        frame[column] = np.nan
     frame[column] = pd.to_numeric(frame[column], errors="coerce")
-
 if "as_of" not in frame.columns:
     frame["as_of"] = None
+if "adjusted" not in frame.columns:
+    frame["adjusted"] = False
 
+adjusted_symbols = frame.loc[frame["adjusted"].fillna(False).astype(bool), "symbol"].tolist()
 frame = frame[["symbol", "close", "as_of"] + RETURN_COLS]
 
+horizon = st.radio(
+    "Rank by",
+    options=RETURN_COLS,
+    index=RETURN_COLS.index(horizon),
+    horizontal=True,
+    format_func=lambda h: HORIZON_NAMES[h],
+    key="detail_horizon",
+)
+st.session_state["horizon"] = horizon
+
+breadth_tape(frame[horizon], horizon, "Constituent")
+
 search = st.text_input(
-    "Search symbols",
-    value="",
-    placeholder="e.g. HDFCBANK, INFY",
+    "Filter",
+    placeholder="Filter by symbol — HDFCBANK, INFY, RELIANCE",
     label_visibility="collapsed",
 )
 
@@ -199,21 +366,46 @@ if search.strip():
     view = frame[frame["symbol"].str.contains(search.strip(), case=False, na=False)]
 
 if view.empty:
-    st.info(f"No symbol matches '{search}'.")
+    st.info(f"No symbol contains “{search.strip()}”. Clear the filter to see all {len(frame)}.")
 else:
-    st.caption(f"{len(view)} of {len(frame)} constituents")
+    view = view.sort_values(horizon, ascending=False, na_position="last").reset_index(drop=True)
+    st.caption(
+        f"{len(view)} of {len(frame)} constituents, strongest {HORIZON_NAMES[horizon]} first."
+    )
     st.dataframe(
-        view.reset_index(drop=True),
-        column_config=stock_column_config(),
+        heatmap(view, RETURN_COLS),
+        column_config={
+            "symbol": st.column_config.TextColumn("Symbol", width="medium"),
+            "close": st.column_config.NumberColumn("Close", format="%.2f"),
+            "as_of": st.column_config.TextColumn("As of", width="small"),
+            **return_columns(),
+        },
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
+        height=620,
     )
 
-st.divider()
-back_button("back_bottom")
+if adjusted_symbols:
+    with st.expander(f"{len(adjusted_symbols)} symbols back-adjusted for corporate actions"):
+        st.write(
+            "NSE's historical endpoint returns raw traded prices. These symbols showed a "
+            "single-session move too large to be a market move, so earlier closes were "
+            "rescaled onto the current basis. Check them against NSE's corporate action "
+            "calendar if a figure looks wrong."
+        )
+        st.code(", ".join(sorted(adjusted_symbols)), language=None)
 
-st.caption(
-    "Source: NSE India official EOD API via the `nse` package. "
-    "Returns are computed against the closest earlier trading day for each period. "
-    "Blank cells mean history was unavailable for that period."
+back("back_bottom")
+
+st.markdown(
+    """
+    <div class="note">
+    Source: NSE India official EOD API. Price returns, not total returns.<br>
+    Each period is measured against the closest earlier trading day. Blank means
+    no history for that span — usually a recent listing.<br>
+    Colour is scaled within each column, so intensity is comparable across
+    horizons rather than absolute.
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
