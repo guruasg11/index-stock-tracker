@@ -1,0 +1,5 @@
+streamlit>=1.38
+nse
+httpx[http2]
+pandas
+python-dateutil
