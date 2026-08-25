@@ -9,11 +9,11 @@ on:
   workflow_dispatch:
     inputs:
       max_indices:
-        description: "Cap the number of indices processed (0 = all). Use a small number for a quick test run."
+        description: "Number of indices to process. 0 = every index on NSE."
         required: false
         default: "0"
       skip_stocks:
-        description: "Set to 1 to build indices.json only (fast smoke test)."
+        description: "Build indices only, no constituents. 1 = skip, 0 = include."
         required: false
         default: "0"
 
@@ -27,7 +27,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 330
+    timeout-minutes: 350
 
     steps:
       - name: Checkout repository
@@ -50,9 +50,10 @@ jobs:
           TZ: Asia/Kolkata
           MAX_INDICES: ${{ github.event.inputs.max_indices || '0' }}
           SKIP_STOCKS: ${{ github.event.inputs.skip_stocks || '0' }}
-          NSE_THROTTLE: "0.40"
+          NSE_THROTTLE: "0.35"
           NSE_ATTEMPTS: "3"
           HISTORY_DAYS: "400"
+          CORP_ACTION_BAND: "0.25"
         run: python update_data.py
 
       - name: Commit and push updated data
@@ -64,8 +65,7 @@ jobs:
             echo "No data changes to commit."
             exit 0
           fi
-          git commit -m "chore(data): daily NSE refresh $(date -u '+%Y-%m-%d %H:%M UTC')"
-          # Rebase in case a manual push landed while this run was in flight.
+          git commit -m "chore(data): NSE refresh $(date -u '+%Y-%m-%d %H:%M UTC')"
           git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || true
           git push origin "HEAD:${GITHUB_REF_NAME}"
 
