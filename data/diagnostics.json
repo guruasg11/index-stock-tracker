@@ -1,6 +1,513 @@
 {
  "corporate_action_band": 0.25,
  "history_days": 400,
- "adjustments": {},
+ "detected_schema": {
+  "index": {
+   "keys": [
+    "EOD_CLOSE_INDEX_VAL",
+    "EOD_HIGH_INDEX_VAL",
+    "EOD_INDEX_NAME",
+    "EOD_LOW_INDEX_VAL",
+    "EOD_OPEN_INDEX_VAL",
+    "EOD_TIMESTAMP",
+    "HIT_TRADED_QTY",
+    "HIT_TURN_OVER",
+    "HI_TIMESTAMP"
+   ],
+   "using_close": "EOD_CLOSE_INDEX_VAL",
+   "using_date": "EOD_TIMESTAMP",
+   "sample": {
+    "EOD_INDEX_NAME": "NIFTY 50",
+    "EOD_OPEN_INDEX_VAL": "24216.05",
+    "EOD_HIGH_INDEX_VAL": "24262.2",
+    "EOD_CLOSE_INDEX_VAL": "24187.7",
+    "EOD_LOW_INDEX_VAL": "24135.65",
+    "HIT_TURN_OVER": "28361.57",
+    "HIT_TRADED_QTY": "315560285",
+    "EOD_TIMESTAMP": "21-JUL-2026",
+    "HI_TIMESTAMP": "2026-07-20T18:30:00.000Z"
+   }
+  },
+  "constituents": {
+   "keys": [
+    "change",
+    "chart30Path",
+    "chart30dPath",
+    "chart365Path",
+    "chart365dPath",
+    "date30dAgo",
+    "date365dAgo",
+    "dayHigh",
+    "dayLow",
+    "ffmc",
+    "identifier",
+    "lastPrice",
+    "lastUpdateTime",
+    "marketType",
+    "nearWKH",
+    "nearWKL",
+    "open",
+    "pChange",
+    "perChange30d",
+    "perChange365d",
+    "previousClose",
+    "priority",
+    "series",
+    "stockIndClosePrice",
+    "symbol",
+    "totalTradedValue",
+    "totalTradedVolume",
+    "yearHigh",
+    "yearLow"
+   ]
+  },
+  "equity": {
+   "keys": [
+    "ch52WeekHighPrice",
+    "ch52WeekLowPrice",
+    "chClosingPrice",
+    "chLastTradedPrice",
+    "chOpeningPrice",
+    "chPreviousClsPrice",
+    "chSeries",
+    "chSymbol",
+    "chTotTradedQty",
+    "chTotTradedVal",
+    "chTotalTrades",
+    "chTradeHighPrice",
+    "chTradeLowPrice",
+    "mtimestamp",
+    "vwap"
+   ],
+   "using_close": "chClosingPrice",
+   "using_date": "mtimestamp",
+   "sample": {
+    "ch52WeekHighPrice": "2027.1",
+    "ch52WeekLowPrice": "1588.05",
+    "chClosingPrice": "2000.5",
+    "chLastTradedPrice": "2001.5",
+    "chOpeningPrice": "1978.2",
+    "chPreviousClsPrice": "1957.4",
+    "chSeries": "EQ",
+    "chSymbol": "HDFCBANK",
+    "chTotTradedQty": "11154539",
+    "chTotTradedVal": "22236041336.4",
+    "chTotalTrades": "275691",
+    "chTradeHighPrice": "2002",
+    "chTradeLowPrice": "1976.5",
+    "mtimestamp": "21-Jul-2025"
+   }
+  }
+ },
+ "adjustments": {
+  "HDFCBANK": [
+   {
+    "date": "2025-08-26",
+    "ratio": 0.495596,
+    "raw_prev_close": 1964.1,
+    "raw_close": 973.4
+   }
+  ],
+  "KOTAKBANK": [
+   {
+    "date": "2026-01-14",
+    "ratio": 0.197412,
+    "raw_prev_close": 2132.6,
+    "raw_close": 421.0
+   }
+  ],
+  "TMPV": [
+   {
+    "date": "2025-10-14",
+    "ratio": 0.598487,
+    "raw_prev_close": 660.75,
+    "raw_close": 395.45
+   }
+  ],
+  "NESTLEIND": [
+   {
+    "date": "2025-08-08",
+    "ratio": 0.490692,
+    "raw_prev_close": 2234.6,
+    "raw_close": 1096.5
+   }
+  ],
+  "TRENT": [
+   {
+    "date": "2026-06-04",
+    "ratio": 0.666479,
+    "raw_prev_close": 4257.6,
+    "raw_close": 2837.6
+   }
+  ],
+  "ADANIPOWER": [
+   {
+    "date": "2025-09-22",
+    "ratio": 0.239992,
+    "raw_prev_close": 709.4,
+    "raw_close": 170.25
+   }
+  ],
+  "VEDL": [
+   {
+    "date": "2026-04-30",
+    "ratio": 0.351021,
+    "raw_prev_close": 773.6,
+    "raw_close": 271.55
+   }
+  ],
+  "HDFCAMC": [
+   {
+    "date": "2025-11-26",
+    "ratio": 0.502014,
+    "raw_prev_close": 5336.5,
+    "raw_close": 2679.0
+   }
+  ],
+  "PIDILITIND": [
+   {
+    "date": "2025-09-23",
+    "ratio": 0.490224,
+    "raw_prev_close": 3038.0,
+    "raw_close": 1489.3
+   }
+  ],
+  "MCX": [
+   {
+    "date": "2026-01-02",
+    "ratio": 0.201656,
+    "raw_prev_close": 10989.0,
+    "raw_close": 2216.0
+   }
+  ],
+  "PATANJALI": [
+   {
+    "date": "2025-09-11",
+    "ratio": 0.332353,
+    "raw_prev_close": 1802.0,
+    "raw_close": 598.9
+   }
+  ],
+  "GODFRYPHLP": [
+   {
+    "date": "2025-09-16",
+    "ratio": 0.356242,
+    "raw_prev_close": 10229.0,
+    "raw_close": 3644.0
+   }
+  ],
+  "TATAINVEST": [
+   {
+    "date": "2025-10-14",
+    "ratio": 0.104314,
+    "raw_prev_close": 9922.0,
+    "raw_close": 1035.0
+   }
+  ],
+  "LICI": [
+   {
+    "date": "2026-05-29",
+    "ratio": 0.495602,
+    "raw_prev_close": 830.0,
+    "raw_close": 411.35
+   }
+  ],
+  "ANGELONE": [
+   {
+    "date": "2026-02-26",
+    "ratio": 0.099,
+    "raw_prev_close": 2489.9,
+    "raw_close": 246.5
+   }
+  ],
+  "ZFCVINDIA": [
+   {
+    "date": "2026-06-24",
+    "ratio": 0.165361,
+    "raw_prev_close": 16086.0,
+    "raw_close": 2660.0
+   }
+  ],
+  "OLAELEC": [
+   {
+    "date": "2025-12-02",
+    "ratio": 0.66578,
+    "raw_prev_close": 60.14,
+    "raw_close": 40.04
+   }
+  ],
+  "BEML": [
+   {
+    "date": "2025-11-03",
+    "ratio": 0.497068,
+    "raw_prev_close": 4399.8,
+    "raw_close": 2187.0
+   }
+  ],
+  "CAMS": [
+   {
+    "date": "2025-12-05",
+    "ratio": 0.196047,
+    "raw_prev_close": 3956.7,
+    "raw_close": 775.7
+   }
+  ],
+  "NUVAMA": [
+   {
+    "date": "2025-12-26",
+    "ratio": 0.196126,
+    "raw_prev_close": 7615.0,
+    "raw_close": 1493.5
+   }
+  ],
+  "SCHNEIDER": [
+   {
+    "date": "2026-05-19",
+    "ratio": 1.361146,
+    "raw_prev_close": 914.45,
+    "raw_close": 1244.7
+   }
+  ],
+  "ZYDUSWELL": [
+   {
+    "date": "2025-09-18",
+    "ratio": 0.20204,
+    "raw_prev_close": 2578.2,
+    "raw_close": 520.9
+   }
+  ],
+  "ECLERX": [
+   {
+    "date": "2026-03-13",
+    "ratio": 0.500222,
+    "raw_prev_close": 3151.8,
+    "raw_close": 1576.6
+   }
+  ],
+  "ANANDRATHI": [
+   {
+    "date": "2026-06-03",
+    "ratio": 0.504394,
+    "raw_prev_close": 3539.3,
+    "raw_close": 1785.2
+   }
+  ],
+  "LALPATHLAB": [
+   {
+    "date": "2025-12-19",
+    "ratio": 0.498139,
+    "raw_prev_close": 2793.6,
+    "raw_close": 1391.6
+   }
+  ],
+  "IEX": [
+   {
+    "date": "2025-07-24",
+    "ratio": 0.704242,
+    "raw_prev_close": 187.89,
+    "raw_close": 132.32
+   }
+  ],
+  "AIIL": [
+   {
+    "date": "2026-01-13",
+    "ratio": 0.215549,
+    "raw_prev_close": 3098.6,
+    "raw_close": 667.9
+   }
+  ],
+  "IRB": [
+   {
+    "date": "2026-03-30",
+    "ratio": 0.540924,
+    "raw_prev_close": 40.93,
+    "raw_close": 22.14
+   }
+  ],
+  "CUPID": [
+   {
+    "date": "2026-03-09",
+    "ratio": 0.227747,
+    "raw_prev_close": 402.2,
+    "raw_close": 91.6
+   }
+  ],
+  "TDPOWERSYS": [
+   {
+    "date": "2026-08-24",
+    "ratio": 0.508275,
+    "raw_prev_close": 1534.8,
+    "raw_close": 780.1
+   }
+  ],
+  "SHILPAMED": [
+   {
+    "date": "2025-10-03",
+    "ratio": 0.494318,
+    "raw_prev_close": 778.75,
+    "raw_close": 384.95
+   }
+  ],
+  "NAZARA": [
+   {
+    "date": "2025-09-26",
+    "ratio": 0.250896,
+    "raw_prev_close": 1116.0,
+    "raw_close": 280.0
+   }
+  ],
+  "GOKULAGRO": [
+   {
+    "date": "2025-10-14",
+    "ratio": 0.453992,
+    "raw_prev_close": 386.35,
+    "raw_close": 175.4
+   }
+  ],
+  "INDIAGLYCO": [
+   {
+    "date": "2025-08-12",
+    "ratio": 0.471927,
+    "raw_prev_close": 1818.5,
+    "raw_close": 858.2
+   }
+  ],
+  "TIMETECHNO": [
+   {
+    "date": "2025-09-23",
+    "ratio": 0.474571,
+    "raw_prev_close": 477.8,
+    "raw_close": 226.75
+   }
+  ],
+  "V2RETAIL": [
+   {
+    "date": "2026-03-25",
+    "ratio": 0.101858,
+    "raw_prev_close": 1927.2,
+    "raw_close": 196.3
+   }
+  ],
+  "TRIVENI": [
+   {
+    "date": "2026-08-05",
+    "ratio": 0.499046,
+    "raw_prev_close": 471.5,
+    "raw_close": 235.3
+   }
+  ],
+  "THYROCARE": [
+   {
+    "date": "2025-11-28",
+    "ratio": 0.336045,
+    "raw_prev_close": 1475.1,
+    "raw_close": 495.7
+   }
+  ],
+  "SANDUMA": [
+   {
+    "date": "2025-09-22",
+    "ratio": 0.334833,
+    "raw_prev_close": 478.0,
+    "raw_close": 160.05
+   }
+  ],
+  "BECTORFOOD": [
+   {
+    "date": "2025-12-12",
+    "ratio": 0.206976,
+    "raw_prev_close": 1310.3,
+    "raw_close": 271.2
+   }
+  ],
+  "WEBELSOLAR": [
+   {
+    "date": "2025-11-14",
+    "ratio": 0.097649,
+    "raw_prev_close": 1352.8,
+    "raw_close": 132.1
+   }
+  ],
+  "KIRLPNU": [
+   {
+    "date": "2026-08-18",
+    "ratio": 0.49547,
+    "raw_prev_close": 1534.3,
+    "raw_close": 760.2
+   }
+  ],
+  "METROPOLIS": [
+   {
+    "date": "2026-03-20",
+    "ratio": 0.241858,
+    "raw_prev_close": 1823.8,
+    "raw_close": 441.1
+   }
+  ],
+  "JLHL": [
+   {
+    "date": "2026-07-24",
+    "ratio": 0.205272,
+    "raw_prev_close": 1574.5,
+    "raw_close": 323.2
+   }
+  ],
+  "SKFINDIA": [
+   {
+    "date": "2025-10-31",
+    "ratio": 0.427442,
+    "raw_prev_close": 5008.4,
+    "raw_close": 2140.8
+   }
+  ],
+  "AHCL": [
+   {
+    "date": "2026-04-24",
+    "ratio": 0.110369,
+    "raw_prev_close": 143.79,
+    "raw_close": 15.87
+   }
+  ],
+  "AQYLON": [
+   {
+    "date": "2026-03-05",
+    "ratio": 0.104972,
+    "raw_prev_close": 1084.1,
+    "raw_close": 113.8
+   }
+  ],
+  "SILLYMONKS": [
+   {
+    "date": "2026-02-24",
+    "ratio": 0.693394,
+    "raw_prev_close": 26.19,
+    "raw_close": 18.16
+   }
+  ],
+  "PNC": [
+   {
+    "date": "2025-12-02",
+    "ratio": 0.745612,
+    "raw_prev_close": 35.89,
+    "raw_close": 26.76
+   }
+  ],
+  "SAMBHAAV": [
+   {
+    "date": "2026-02-24",
+    "ratio": 0.67152,
+    "raw_prev_close": 10.99,
+    "raw_close": 7.38
+   }
+  ],
+  "TVVISION": [
+   {
+    "date": "2026-03-23",
+    "ratio": 0.43567,
+    "raw_prev_close": 11.27,
+    "raw_close": 4.91
+   }
+  ]
+ },
  "failures": []
 }
