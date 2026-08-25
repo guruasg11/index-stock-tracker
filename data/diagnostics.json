@@ -179,335 +179,808 @@
     "raw_prev_close": 10989.0,
     "raw_close": 2216.0
    }
-  ],
-  "PATANJALI": [
-   {
-    "date": "2025-09-11",
-    "ratio": 0.332353,
-    "raw_prev_close": 1802.0,
-    "raw_close": 598.9
-   }
-  ],
-  "GODFRYPHLP": [
-   {
-    "date": "2025-09-16",
-    "ratio": 0.356242,
-    "raw_prev_close": 10229.0,
-    "raw_close": 3644.0
-   }
-  ],
-  "TATAINVEST": [
-   {
-    "date": "2025-10-14",
-    "ratio": 0.104314,
-    "raw_prev_close": 9922.0,
-    "raw_close": 1035.0
-   }
-  ],
-  "LICI": [
-   {
-    "date": "2026-05-29",
-    "ratio": 0.495602,
-    "raw_prev_close": 830.0,
-    "raw_close": 411.35
-   }
-  ],
-  "ANGELONE": [
-   {
-    "date": "2026-02-26",
-    "ratio": 0.099,
-    "raw_prev_close": 2489.9,
-    "raw_close": 246.5
-   }
-  ],
-  "ZFCVINDIA": [
-   {
-    "date": "2026-06-24",
-    "ratio": 0.165361,
-    "raw_prev_close": 16086.0,
-    "raw_close": 2660.0
-   }
-  ],
-  "OLAELEC": [
-   {
-    "date": "2025-12-02",
-    "ratio": 0.66578,
-    "raw_prev_close": 60.14,
-    "raw_close": 40.04
-   }
-  ],
-  "BEML": [
-   {
-    "date": "2025-11-03",
-    "ratio": 0.497068,
-    "raw_prev_close": 4399.8,
-    "raw_close": 2187.0
-   }
-  ],
-  "CAMS": [
-   {
-    "date": "2025-12-05",
-    "ratio": 0.196047,
-    "raw_prev_close": 3956.7,
-    "raw_close": 775.7
-   }
-  ],
-  "LALPATHLAB": [
-   {
-    "date": "2025-12-19",
-    "ratio": 0.498139,
-    "raw_prev_close": 2793.6,
-    "raw_close": 1391.6
-   }
-  ],
-  "SCHNEIDER": [
-   {
-    "date": "2026-05-19",
-    "ratio": 1.361146,
-    "raw_prev_close": 914.45,
-    "raw_close": 1244.7
-   }
-  ],
-  "ECLERX": [
-   {
-    "date": "2026-03-13",
-    "ratio": 0.500222,
-    "raw_prev_close": 3151.8,
-    "raw_close": 1576.6
-   }
-  ],
-  "NUVAMA": [
-   {
-    "date": "2025-12-26",
-    "ratio": 0.196126,
-    "raw_prev_close": 7615.0,
-    "raw_close": 1493.5
-   }
-  ],
-  "ZYDUSWELL": [
-   {
-    "date": "2025-09-18",
-    "ratio": 0.20204,
-    "raw_prev_close": 2578.2,
-    "raw_close": 520.9
-   }
-  ],
-  "ANANDRATHI": [
-   {
-    "date": "2026-06-03",
-    "ratio": 0.504394,
-    "raw_prev_close": 3539.3,
-    "raw_close": 1785.2
-   }
-  ],
-  "IEX": [
-   {
-    "date": "2025-07-24",
-    "ratio": 0.704242,
-    "raw_prev_close": 187.89,
-    "raw_close": 132.32
-   }
-  ],
-  "AIIL": [
-   {
-    "date": "2026-01-13",
-    "ratio": 0.215549,
-    "raw_prev_close": 3098.6,
-    "raw_close": 667.9
-   }
-  ],
-  "IRB": [
-   {
-    "date": "2026-03-30",
-    "ratio": 0.540924,
-    "raw_prev_close": 40.93,
-    "raw_close": 22.14
-   }
-  ],
-  "CUPID": [
-   {
-    "date": "2026-03-09",
-    "ratio": 0.227747,
-    "raw_prev_close": 402.2,
-    "raw_close": 91.6
-   }
-  ],
-  "TDPOWERSYS": [
-   {
-    "date": "2026-08-24",
-    "ratio": 0.508275,
-    "raw_prev_close": 1534.8,
-    "raw_close": 780.1
-   }
-  ],
-  "SHILPAMED": [
-   {
-    "date": "2025-10-03",
-    "ratio": 0.494318,
-    "raw_prev_close": 778.75,
-    "raw_close": 384.95
-   }
-  ],
-  "NAZARA": [
-   {
-    "date": "2025-09-26",
-    "ratio": 0.250896,
-    "raw_prev_close": 1116.0,
-    "raw_close": 280.0
-   }
-  ],
-  "GOKULAGRO": [
-   {
-    "date": "2025-10-14",
-    "ratio": 0.453992,
-    "raw_prev_close": 386.35,
-    "raw_close": 175.4
-   }
-  ],
-  "INDIAGLYCO": [
-   {
-    "date": "2025-08-12",
-    "ratio": 0.471927,
-    "raw_prev_close": 1818.5,
-    "raw_close": 858.2
-   }
-  ],
-  "TIMETECHNO": [
-   {
-    "date": "2025-09-23",
-    "ratio": 0.474571,
-    "raw_prev_close": 477.8,
-    "raw_close": 226.75
-   }
-  ],
-  "V2RETAIL": [
-   {
-    "date": "2026-03-25",
-    "ratio": 0.101858,
-    "raw_prev_close": 1927.2,
-    "raw_close": 196.3
-   }
-  ],
-  "TRIVENI": [
-   {
-    "date": "2026-08-05",
-    "ratio": 0.499046,
-    "raw_prev_close": 471.5,
-    "raw_close": 235.3
-   }
-  ],
-  "THYROCARE": [
-   {
-    "date": "2025-11-28",
-    "ratio": 0.336045,
-    "raw_prev_close": 1475.1,
-    "raw_close": 495.7
-   }
-  ],
-  "BECTORFOOD": [
-   {
-    "date": "2025-12-12",
-    "ratio": 0.206976,
-    "raw_prev_close": 1310.3,
-    "raw_close": 271.2
-   }
-  ],
-  "SANDUMA": [
-   {
-    "date": "2025-09-22",
-    "ratio": 0.334833,
-    "raw_prev_close": 478.0,
-    "raw_close": 160.05
-   }
-  ],
-  "WEBELSOLAR": [
-   {
-    "date": "2025-11-14",
-    "ratio": 0.097649,
-    "raw_prev_close": 1352.8,
-    "raw_close": 132.1
-   }
-  ],
-  "JLHL": [
-   {
-    "date": "2026-07-24",
-    "ratio": 0.205272,
-    "raw_prev_close": 1574.5,
-    "raw_close": 323.2
-   }
-  ],
-  "METROPOLIS": [
-   {
-    "date": "2026-03-20",
-    "ratio": 0.241858,
-    "raw_prev_close": 1823.8,
-    "raw_close": 441.1
-   }
-  ],
-  "KIRLPNU": [
-   {
-    "date": "2026-08-18",
-    "ratio": 0.49547,
-    "raw_prev_close": 1534.3,
-    "raw_close": 760.2
-   }
-  ],
-  "SKFINDIA": [
-   {
-    "date": "2025-10-31",
-    "ratio": 0.427442,
-    "raw_prev_close": 5008.4,
-    "raw_close": 2140.8
-   }
-  ],
-  "AHCL": [
-   {
-    "date": "2026-04-24",
-    "ratio": 0.110369,
-    "raw_prev_close": 143.79,
-    "raw_close": 15.87
-   }
-  ],
-  "AQYLON": [
-   {
-    "date": "2026-03-05",
-    "ratio": 0.104972,
-    "raw_prev_close": 1084.1,
-    "raw_close": 113.8
-   }
-  ],
-  "SILLYMONKS": [
-   {
-    "date": "2026-02-24",
-    "ratio": 0.693394,
-    "raw_prev_close": 26.19,
-    "raw_close": 18.16
-   }
-  ],
-  "PNC": [
-   {
-    "date": "2025-12-02",
-    "ratio": 0.745612,
-    "raw_prev_close": 35.89,
-    "raw_close": 26.76
-   }
-  ],
-  "SAMBHAAV": [
-   {
-    "date": "2026-02-24",
-    "ratio": 0.67152,
-    "raw_prev_close": 10.99,
-    "raw_close": 7.38
-   }
-  ],
-  "TVVISION": [
-   {
-    "date": "2026-03-23",
-    "ratio": 0.43567,
-    "raw_prev_close": 11.27,
-    "raw_close": 4.91
-   }
   ]
  },
- "failures": []
+ "failures": [
+  {
+   "target": "history for index 'NIFTY MIDSMALL FINANCIAL SERVICES'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2091, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY MIDSMALL FINANCIAL SERVICES'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2097, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY MIDSMALL IT & TELECOM'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2103, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY MIDSMALL IT & TELECOM'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2109, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY CHEMICALS'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2115, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY CHEMICALS'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2121, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY500 HEALTHCARE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2127, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY500 HEALTHCARE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2133, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY REITS & REALTY'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2139, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY REITS & REALTY'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2145, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY CEMENT'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2151, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY CEMENT'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2157, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY DIVIDEND OPPORTUNITIES 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2163, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY DIVIDEND OPPORTUNITIES 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2169, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY GROWTH SECTORS 15'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2175, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY GROWTH SECTORS 15'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2181, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY100 QUALITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2187, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY100 QUALITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2193, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY50 VALUE 20'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2199, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY50 VALUE 20'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2205, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY50 TR 2X LEVERAGE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2211, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY50 TR 2X LEVERAGE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2217, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY50 PR 2X LEVERAGE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2223, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY50 PR 2X LEVERAGE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2229, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY50 TR 1X INVERSE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2235, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY50 TR 1X INVERSE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2241, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY50 PR 1X INVERSE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2247, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY50 PR 1X INVERSE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2253, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY50 DIVIDEND POINTS'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2259, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY50 DIVIDEND POINTS'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2265, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY ALPHA 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2271, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY ALPHA 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2277, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY50 EQUAL WEIGHT'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2283, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY50 EQUAL WEIGHT'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2289, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY100 EQUAL WEIGHT'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2295, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY100 EQUAL WEIGHT'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2301, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY100 LOW VOLATILITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2307, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY100 LOW VOLATILITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2313, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY200 QUALITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2319, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY200 QUALITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2325, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY ALPHA LOW-VOLATILITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2331, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY ALPHA LOW-VOLATILITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2337, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY200 MOMENTUM 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2343, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY200 MOMENTUM 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2349, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY MIDCAP150 QUALITY 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2355, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY MIDCAP150 QUALITY 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2361, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY200 ALPHA 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2367, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY200 ALPHA 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2373, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY MIDCAP150 MOMENTUM 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2379, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY MIDCAP150 MOMENTUM 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2385, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY500 MOMENTUM 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2391, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY500 MOMENTUM 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2397, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY MIDSMALLCAP400 MOMENTUM QUALITY 100'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2403, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY MIDSMALLCAP400 MOMENTUM QUALITY 100'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2409, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY SMALLCAP250 MOMENTUM QUALITY 100'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2415, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY SMALLCAP250 MOMENTUM QUALITY 100'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2421, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY TOP 10 EQUAL WEIGHT'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2427, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY TOP 10 EQUAL WEIGHT'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2433, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY ALPHA QUALITY LOW-VOLATILITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2439, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY ALPHA QUALITY LOW-VOLATILITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2445, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY ALPHA QUALITY VALUE LOW-VOLATILITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2451, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY ALPHA QUALITY VALUE LOW-VOLATILITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2457, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY HIGH BETA 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2463, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY HIGH BETA 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2469, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY LOW VOLATILITY 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2475, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY LOW VOLATILITY 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2481, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY QUALITY LOW-VOLATILITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2487, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY QUALITY LOW-VOLATILITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2493, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY SMALLCAP250 QUALITY 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2499, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY SMALLCAP250 QUALITY 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2505, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY TOP 15 EQUAL WEIGHT'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2511, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY TOP 15 EQUAL WEIGHT'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2517, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY100 ALPHA 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2523, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY100 ALPHA 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2529, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY200 VALUE 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2535, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY200 VALUE 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2541, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY500 EQUAL WEIGHT'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2547, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY500 EQUAL WEIGHT'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2553, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY500 MULTICAP MOMENTUM QUALITY 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2559, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY500 MULTICAP MOMENTUM QUALITY 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2565, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY500 VALUE 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2571, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY500 VALUE 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2577, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY TOP 20 EQUAL WEIGHT'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2583, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY TOP 20 EQUAL WEIGHT'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2589, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY500 QUALITY 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2595, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY500 QUALITY 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2601, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY500 LOW VOLATILITY 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2607, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY500 LOW VOLATILITY 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2613, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY500 MULTIFACTOR MQVLV 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2619, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY500 MULTIFACTOR MQVLV 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2625, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY50 USD'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2631, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY50 USD'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2637, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY500 FLEXICAP QUALITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2643, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY500 FLEXICAP QUALITY 30'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2649, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY TOTAL MARKET MOMENTUM QUALITY 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2655, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY TOTAL MARKET MOMENTUM QUALITY 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2661, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY COMMODITIES'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2667, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY COMMODITIES'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2673, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY INDIA CONSUMPTION'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2679, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY INDIA CONSUMPTION'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2685, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY CPSE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2691, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY CPSE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2697, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY ENERGY'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2703, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY ENERGY'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2709, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY INFRASTRUCTURE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2715, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY INFRASTRUCTURE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2721, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY100 LIQUID 15'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2727, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY100 LIQUID 15'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2733, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY MIDCAP LIQUID 15'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2739, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY MIDCAP LIQUID 15'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2745, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY MNC'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2751, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY MNC'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2757, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY PSE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2763, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY PSE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2769, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY SERVICES SECTOR'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2775, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY SERVICES SECTOR'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2781, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY100 ESG SECTOR LEADERS'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2787, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY100 ESG SECTOR LEADERS'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2793, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY INDIA DIGITAL'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2799, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY INDIA DIGITAL'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2805, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY100 ESG'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2811, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY100 ESG'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2817, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY INDIA MANUFACTURING'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2823, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY INDIA MANUFACTURING'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2829, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY INDIA CORPORATE GROUP INDEX - TATA GROUP 25% CAP'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2835, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY INDIA CORPORATE GROUP INDEX - TATA GROUP 25% CAP'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2841, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY500 MULTICAP INDIA MANUFACTURING 50:30:20'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2847, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY500 MULTICAP INDIA MANUFACTURING 50:30:20'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2853, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY500 MULTICAP INFRASTRUCTURE 50:30:20'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2859, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY500 MULTICAP INFRASTRUCTURE 50:30:20'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2865, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY INDIA DEFENCE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2871, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY INDIA DEFENCE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2877, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY INDIA TOURISM'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2883, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY INDIA TOURISM'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2889, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY CAPITAL MARKETS'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2895, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY CAPITAL MARKETS'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2901, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY EV & NEW AGE AUTOMOTIVE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2907, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY EV & NEW AGE AUTOMOTIVE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2913, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY INDIA NEW AGE CONSUMPTION'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2919, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY INDIA NEW AGE CONSUMPTION'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2925, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY INDIA SELECT 5 CORPORATE GROUPS (MAATR)'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2931, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY INDIA SELECT 5 CORPORATE GROUPS (MAATR)'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2937, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY MOBILITY'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2943, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY MOBILITY'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2949, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY100 ENHANCED ESG'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2955, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY100 ENHANCED ESG'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2961, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY CORE HOUSING'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2967, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY CORE HOUSING'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2973, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY HOUSING'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2979, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY HOUSING'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2985, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY IPO'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2991, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY IPO'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:2997, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY MIDSMALL INDIA CONSUMPTION'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3003, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY MIDSMALL INDIA CONSUMPTION'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3009, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY NON-CYCLICAL CONSUMER'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3015, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY NON-CYCLICAL CONSUMER'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3021, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY RURAL'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3027, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY RURAL'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3033, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY SHARIAH 25'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3039, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY SHARIAH 25'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3045, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY TRANSPORTATION & LOGISTICS'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3051, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY TRANSPORTATION & LOGISTICS'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3057, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY50 SHARIAH'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3063, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY50 SHARIAH'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3069, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY500 SHARIAH'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3075, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY500 SHARIAH'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3081, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY SME EMERGE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3087, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY SME EMERGE'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3093, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY INDIA INTERNET'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3099, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY INDIA INTERNET'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3105, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY WAVES'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3111, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY WAVES'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3117, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY INDIA INFRASTRUCTURE & LOGISTICS'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3123, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY INDIA INFRASTRUCTURE & LOGISTICS'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3129, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY INDIA RAILWAYS PSU'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3135, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY INDIA RAILWAYS PSU'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3141, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY CONGLOMERATE 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3147, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY CONGLOMERATE 50'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3153, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY 8-13 YR G-SEC'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3159, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY 8-13 YR G-SEC'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3165, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY 10 YR BENCHMARK G-SEC'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3171, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY 10 YR BENCHMARK G-SEC'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3177, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY 10 YR BENCHMARK G-SEC (CLEAN PRICE)'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3183, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY 10 YR BENCHMARK G-SEC (CLEAN PRICE)'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3189, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY 4-8 YR G-SEC INDEX'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3195, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY 4-8 YR G-SEC INDEX'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3201, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY 11-15 YR G-SEC INDEX'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3207, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY 11-15 YR G-SEC INDEX'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3213, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY 15 YR AND ABOVE G-SEC INDEX'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3219, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY 15 YR AND ABOVE G-SEC INDEX'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3225, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY COMPOSITE G-SEC INDEX'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3231, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY COMPOSITE G-SEC INDEX'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3237, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY BHARAT BOND INDEX - APRIL 2030'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3243, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY BHARAT BOND INDEX - APRIL 2030'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3249, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY BHARAT BOND INDEX - APRIL 2031'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3255, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY BHARAT BOND INDEX - APRIL 2031'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3261, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY BHARAT BOND INDEX - APRIL 2032'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3267, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY BHARAT BOND INDEX - APRIL 2032'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3273, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "history for index 'NIFTY BHARAT BOND INDEX - APRIL 2033'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3279, error_code:2, remote_reset:True>"
+  },
+  {
+   "target": "constituents of 'NIFTY BHARAT BOND INDEX - APRIL 2033'",
+   "reason": "RemoteProtocolError: <StreamReset stream_id:3285, error_code:2, remote_reset:True>"
+  }
+ ]
 }
