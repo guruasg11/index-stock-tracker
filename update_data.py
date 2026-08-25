@@ -72,6 +72,8 @@ STOCKS_DIR = os.path.join(DATA_DIR, "stocks")
 
 INDICES_FILE = os.path.join(DATA_DIR, "indices.json")
 STOCKS_MAP_FILE = os.path.join(DATA_DIR, "stocks_index.json")
+ALL_STOCKS_FILE = os.path.join(DATA_DIR, "all_stocks.json")
+MEMBERSHIP_FILE = os.path.join(DATA_DIR, "symbol_membership.json")
 LAST_UPDATED_FILE = os.path.join(DATA_DIR, "last_updated.json")
 DIAGNOSTICS_FILE = os.path.join(DATA_DIR, "diagnostics.json")
 
@@ -85,9 +87,6 @@ CORP_ACTION_BAND = float(os.getenv("CORP_ACTION_BAND", "0.25"))
 CHECKPOINT_EVERY = 5
 
 IST = timezone(timedelta(hours=5, minutes=30))
-
-INDEX_DATE_FORMAT = "%d-%b-%Y"
-STOCK_DATE_FORMAT = "%d-%b-%Y"
 
 PERIODS: List[Tuple[str, Optional[Callable[[date], date]]]] = [
     ("1D", None),
@@ -119,35 +118,199 @@ def slugify(name: str) -> str:
 # Series construction, corporate actions, return maths
 # --------------------------------------------------------------------------
 
+SCHEMA_SEEN: Dict[str, Any] = {}
+
+DATE_FORMATS = (
+    "%d-%b-%Y", "%d-%B-%Y", "%d-%b-%Y %H:%M:%S", "%d-%m-%Y", "%d/%m/%Y",
+    "%Y-%m-%d", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S", "%b %d, %Y",
+)
+
+DATE_KEY_HINT = re.compile(r"(TIMESTAMP|_DATE|^DATE|DT$|TRADE_DATE)", re.IGNORECASE)
+CLOSE_KEY_HINT = re.compile(r"CLOS", re.IGNORECASE)
+CLOSE_KEY_VETO = re.compile(r"(PREV|PRIOR|ADJ_?PREV)", re.IGNORECASE)
+
+
+def parse_any_date(value: Any) -> Optional[pd.Timestamp]:
+    """Parse a date across every shape NSE's endpoints have used."""
+    if value is None:
+        return None
+    if isinstance(value, (pd.Timestamp, datetime, date)):
+        return pd.Timestamp(value).normalize()
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        # epoch seconds or milliseconds
+        try:
+            unit = "ms" if float(value) > 1e11 else "s"
+            return pd.Timestamp(pd.to_datetime(float(value), unit=unit)).normalize()
+        except (ValueError, OverflowError, OSError):
+            return None
+    text = str(value).strip()
+    if not text:
+        return None
+    if text.endswith("Z"):
+        text = text[:-1]
+    for fmt in DATE_FORMATS:
+        try:
+            return pd.Timestamp(datetime.strptime(text, fmt)).normalize()
+        except ValueError:
+            continue
+    try:
+        parsed = pd.to_datetime(text, dayfirst=True, errors="coerce")
+    except (ValueError, TypeError):
+        return None
+    if parsed is None or pd.isna(parsed):
+        return None
+    return pd.Timestamp(parsed).normalize()
+
+
+def parse_any_number(value: Any) -> Optional[float]:
+    if value is None or isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        number = float(value)
+        return number if number > 0 else None
+    text = str(value).replace(",", "").replace("\u20b9", "").strip()
+    if not text:
+        return None
+    try:
+        number = float(text)
+    except ValueError:
+        return None
+    return number if number > 0 else None
+
+
+def unwrap_records(payload: Any) -> List[Dict[str, Any]]:
+    """Flatten whatever the endpoint returned into a list of record dicts."""
+    if payload is None:
+        return []
+    if isinstance(payload, pd.DataFrame):
+        return payload.to_dict("records")
+    if isinstance(payload, dict):
+        for key in ("data", "indexCloseOnlineRecords", "records", "grapthData", "result"):
+            if key in payload:
+                return unwrap_records(payload[key])
+        # a dict of dicts
+        values = list(payload.values())
+        if values and all(isinstance(v, dict) for v in values):
+            return values
+        return []
+    if isinstance(payload, (list, tuple)):
+        flat: List[Dict[str, Any]] = []
+        for item in payload:
+            if isinstance(item, dict):
+                flat.append(item)
+            elif isinstance(item, (list, tuple, dict)):
+                flat.extend(unwrap_records(item))
+        return flat
+    return []
+
+
+def flatten_record(record: Dict[str, Any]) -> Dict[str, Any]:
+    """One level of nesting - some NSE payloads bury fields under 'meta'."""
+    flat: Dict[str, Any] = {}
+    for key, value in record.items():
+        if isinstance(value, dict):
+            for inner_key, inner_value in value.items():
+                flat.setdefault(str(inner_key), inner_value)
+        else:
+            flat[str(key)] = value
+    return flat
+
+
+def detect_fields(
+    records: List[Dict[str, Any]],
+    prefer_close: str,
+    prefer_date: str,
+) -> Tuple[Optional[str], Optional[str]]:
+    """
+    Find the close and date columns by probing actual values, so a renamed
+    field or a changed date format degrades to a different column rather
+    than to silence.
+    """
+    sample = records[: min(len(records), 25)]
+    if not sample:
+        return None, None
+    keys: List[str] = []
+    for record in sample:
+        for key in record:
+            if key not in keys:
+                keys.append(key)
+
+    def usable_date(key: str) -> bool:
+        hits = sum(1 for r in sample if parse_any_date(r.get(key)) is not None)
+        return hits >= max(1, len(sample) // 2)
+
+    def usable_number(key: str) -> bool:
+        hits = sum(1 for r in sample if parse_any_number(r.get(key)) is not None)
+        return hits >= max(1, len(sample) // 2)
+
+    date_key = None
+    if prefer_date in keys and usable_date(prefer_date):
+        date_key = prefer_date
+    else:
+        for key in keys:
+            if DATE_KEY_HINT.search(key) and usable_date(key):
+                date_key = key
+                break
+        if date_key is None:
+            for key in keys:
+                if usable_date(key) and not usable_number(key):
+                    date_key = key
+                    break
+
+    close_key = None
+    if prefer_close in keys and usable_number(prefer_close):
+        close_key = prefer_close
+    else:
+        candidates = [
+            k for k in keys
+            if CLOSE_KEY_HINT.search(k) and not CLOSE_KEY_VETO.search(k) and usable_number(k)
+        ]
+        if candidates:
+            close_key = candidates[0]
+
+    return close_key, date_key
+
+
 def build_series(
-    records: Any,
+    payload: Any,
     close_key: str,
     date_key: str,
-    date_format: str,
+    schema_label: str = "",
 ) -> Optional[pd.Series]:
-    """NSE records -> float Series indexed by date, ascending, de-duplicated."""
-    if not isinstance(records, list) or not records:
+    """
+    NSE payload -> float Series indexed by date, ascending, de-duplicated.
+
+    Field names and date formats are detected from the payload itself. The
+    close_key/date_key arguments are only the preferred names.
+    """
+    records = [flatten_record(r) for r in unwrap_records(payload)]
+    if not records:
+        return None
+
+    resolved_close, resolved_date = detect_fields(records, close_key, date_key)
+
+    if schema_label and schema_label not in SCHEMA_SEEN:
+        SCHEMA_SEEN[schema_label] = {
+            "keys": sorted(records[0].keys()),
+            "using_close": resolved_close,
+            "using_date": resolved_date,
+            "sample": {
+                k: str(v)[:40] for k, v in list(records[0].items())[:14]
+            },
+        }
+        log(f"  schema[{schema_label}] close={resolved_close!r} date={resolved_date!r}")
+        log(f"  schema[{schema_label}] keys={sorted(records[0].keys())}")
+
+    if not resolved_close or not resolved_date:
         return None
 
     rows: List[Tuple[pd.Timestamp, float]] = []
     for record in records:
-        if not isinstance(record, dict):
+        stamp = parse_any_date(record.get(resolved_date))
+        close = parse_any_number(record.get(resolved_close))
+        if stamp is None or close is None:
             continue
-        raw_date = record.get(date_key)
-        raw_close = record.get(close_key)
-        if raw_date is None or raw_close is None:
-            continue
-        try:
-            parsed = datetime.strptime(str(raw_date).strip(), date_format).date()
-        except (ValueError, TypeError):
-            continue
-        try:
-            close = float(str(raw_close).replace(",", "").strip())
-        except (ValueError, TypeError):
-            continue
-        if close <= 0:
-            continue
-        rows.append((pd.Timestamp(parsed), close))
+        rows.append((stamp, close))
 
     if not rows:
         return None
@@ -298,6 +461,8 @@ def date_window() -> Tuple[date, date]:
 
 _STOCK_CACHE: Dict[str, Optional[Dict[str, Any]]] = {}
 ADJUSTMENTS: Dict[str, List[Dict[str, Any]]] = {}
+# symbol -> every index that contains it. Free: built from data already fetched.
+MEMBERSHIP: Dict[str, List[str]] = {}
 
 
 def fetch_index_row(client: "NSE", index_name: str) -> Optional[Dict[str, Any]]:
@@ -310,10 +475,8 @@ def fetch_index_row(client: "NSE", index_name: str) -> Optional[Dict[str, Any]]:
     )
     if raw is None:
         return None
-    if isinstance(raw, dict):
-        raw = raw.get("data", raw.get("indexCloseOnlineRecords", []))
 
-    series = build_series(raw, "EOD_CLOSE_INDEX_VAL", "EOD_TIMESTAMP", INDEX_DATE_FORMAT)
+    series = build_series(raw, "EOD_CLOSE_INDEX_VAL", "EOD_TIMESTAMP", "index")
     close, as_of, returns = compute_returns(series)
     if close is None:
         log(f"    ! no usable history for index '{index_name}'")
@@ -340,10 +503,7 @@ def fetch_stock_row(client: "NSE", symbol: str) -> Optional[Dict[str, Any]]:
         ),
         f"history for symbol '{symbol}'",
     )
-    if isinstance(raw, dict):
-        raw = raw.get("data", [])
-
-    series = build_series(raw, "CH_CLOSING_PRICE", "mTIMESTAMP", STOCK_DATE_FORMAT)
+    series = build_series(raw, "CH_CLOSING_PRICE", "mTIMESTAMP", "equity")
     series, events = adjust_for_corporate_actions(series)
     close, as_of, returns = compute_returns(series)
 
@@ -375,9 +535,13 @@ def fetch_constituents(client: "NSE", index_name: str) -> List[str]:
     )
     if not payload:
         return []
-    rows = payload.get("data", []) if isinstance(payload, dict) else payload
-    if not isinstance(rows, list):
+    rows = [flatten_record(r) for r in unwrap_records(payload)]
+    if not rows:
         return []
+
+    if "constituents" not in SCHEMA_SEEN:
+        SCHEMA_SEEN["constituents"] = {"keys": sorted(rows[0].keys())}
+        log(f"  schema[constituents] keys={sorted(rows[0].keys())}")
 
     symbols: List[str] = []
     seen = set()
@@ -385,7 +549,7 @@ def fetch_constituents(client: "NSE", index_name: str) -> List[str]:
     for row in rows:
         if not isinstance(row, dict):
             continue
-        symbol = row.get("symbol")
+        symbol = row.get("symbol") or row.get("Symbol") or row.get("SYMBOL")
         if not symbol:
             continue
         symbol = str(symbol).strip()
@@ -441,6 +605,18 @@ def checkpoint(
     try:
         write_json(INDICES_FILE, indices_payload)
         write_json(STOCKS_MAP_FILE, shard_map)
+        # Flat universe for the lookup page: every symbol priced this run.
+        write_json(
+            ALL_STOCKS_FILE,
+            sorted(
+                (row for row in _STOCK_CACHE.values() if row),
+                key=lambda r: r["symbol"],
+            ),
+        )
+        write_json(
+            MEMBERSHIP_FILE,
+            {symbol: sorted(set(names)) for symbol, names in MEMBERSHIP.items()},
+        )
         write_json(
             LAST_UPDATED_FILE,
             {
@@ -448,7 +624,7 @@ def checkpoint(
                 "last_updated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 "indices_count": len(indices_payload),
                 "indices_with_stocks": len(shard_map),
-                "unique_symbols": len(_STOCK_CACHE),
+                "unique_symbols": len([r for r in _STOCK_CACHE.values() if r]),
                 "symbols_adjusted": len(ADJUSTMENTS),
                 "failures": len(FAILURES),
                 "runtime_minutes": round((time.time() - started) / 60.0, 1),
@@ -460,6 +636,7 @@ def checkpoint(
             {
                 "corporate_action_band": CORP_ACTION_BAND,
                 "history_days": HISTORY_DAYS,
+                "detected_schema": SCHEMA_SEEN,
                 "adjustments": ADJUSTMENTS,
                 "failures": FAILURES[-200:],
             },
@@ -563,6 +740,7 @@ def main() -> int:
                     stock_row = None
                 if stock_row:
                     rows.append(dict(stock_row))
+                    MEMBERSHIP.setdefault(symbol, []).append(index_name)
 
             shard_map[index_name] = write_stock_shard(index_name, rows)
             log(f"    {len(rows)}/{len(symbols)} constituents computed")
