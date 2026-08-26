@@ -36,6 +36,47 @@ HORIZON_NAMES = {
 }
 DETAIL_PAGE = "pages/1_Index_Details.py"
 
+RANGE_COLS = ["wk52_high", "wk52_low", "from_high", "from_low"]
+RANGE_LABELS = {
+    "wk52_high": "52W high", "wk52_low": "52W low",
+    "from_high": "% off high", "from_low": "% off low",
+}
+
+
+def nav_bar(current: str) -> None:
+    """Explicit tabs - sidebar navigation is switched off in config.toml."""
+    tabs = [
+        ("Indices", "app.py"),
+        ("Lookup", "pages/2_Lookup.py"),
+        ("Compare", "pages/3_Compare.py"),
+    ]
+    columns = st.columns(len(tabs) + 4)
+    for column, (label, target) in zip(columns, tabs):
+        with column:
+            st.button(
+                label,
+                key=f"nav_{label}",
+                width="stretch",
+                type="primary" if label == current else "secondary",
+                disabled=label == current,
+                on_click=None if label == current else st.switch_page,
+                args=None if label == current else (target,),
+            )
+
+
+def range_column_config() -> Dict[str, Any]:
+    return {
+        "wk52_high": st.column_config.NumberColumn("52W high", format="%.2f"),
+        "wk52_low": st.column_config.NumberColumn("52W low", format="%.2f"),
+        "from_high": st.column_config.NumberColumn(
+            "% off high", format="%.2f%%", help="Distance below the 52-week high"
+        ),
+        "from_low": st.column_config.NumberColumn(
+            "% off low", format="%.2f%%", help="Distance above the 52-week low"
+        ),
+    }
+
+
 INK = "#12263A"
 PAPER = "#F7F8FA"
 RULE = "#DCE1E8"
@@ -236,13 +277,13 @@ def return_columns(label_prefix: str = "") -> Dict[str, Any]:
 
 
 def normalise(frame: pd.DataFrame, key: str) -> pd.DataFrame:
-    for column in RETURN_COLS + ["close"]:
+    for column in RETURN_COLS + RANGE_COLS + ["close"]:
         if column not in frame.columns:
             frame[column] = np.nan
         frame[column] = pd.to_numeric(frame[column], errors="coerce")
     if "as_of" not in frame.columns:
         frame["as_of"] = None
-    return frame[[key, "close", "as_of"] + RETURN_COLS]
+    return frame[[key, "close", "as_of"] + RETURN_COLS + RANGE_COLS]
 
 
 # --------------------------------------------------------------------------
@@ -250,6 +291,7 @@ def normalise(frame: pd.DataFrame, key: str) -> pd.DataFrame:
 # --------------------------------------------------------------------------
 
 inject_css()
+nav_bar("Indices")
 
 indices_data = load_json("indices.json")
 meta = load_json("last_updated.json")
@@ -336,12 +378,13 @@ st.caption(
 )
 
 event = st.dataframe(
-    heatmap(view, RETURN_COLS),
+    heatmap(view, RETURN_COLS + ["from_high", "from_low"]),
     column_config={
         "index": st.column_config.TextColumn("Index", width="large"),
         "close": st.column_config.NumberColumn("Close", format="%.2f"),
         "as_of": st.column_config.TextColumn("As of", width="small"),
         **return_columns(),
+        **range_column_config(),
     },
     hide_index=True,
     width="stretch",
