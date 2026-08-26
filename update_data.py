@@ -86,6 +86,12 @@ CORP_ACTION_BAND = float(os.getenv("CORP_ACTION_BAND", "0.25"))
 
 CHECKPOINT_EVERY = 5
 
+# A 400-day window should yield ~265 sessions. Anything well below that means
+# the endpoint truncated the response, so refetch it in smaller windows.
+MIN_SESSIONS = int(os.getenv("MIN_SESSIONS", "200"))
+CHUNK_DAYS = int(os.getenv("CHUNK_DAYS", "90"))
+WK52_SESSIONS = 252
+
 IST = timezone(timedelta(hours=5, minutes=30))
 
 # Periods measured in TRADING SESSIONS, not calendar days. Three calendar days
@@ -379,6 +385,31 @@ def adjust_for_corporate_actions(
     return adjusted, events
 
 
+def window_extremes(series: Optional[pd.Series]) -> Dict[str, Optional[float]]:
+    """52-week high/low and the distance from each, off the same adjusted closes."""
+    blank: Dict[str, Optional[float]] = {
+        "wk52_high": None, "wk52_low": None,
+        "from_high": None, "from_low": None, "wk52_sessions": 0,
+    }
+    if series is None or series.empty:
+        return blank
+
+    window = series.iloc[-WK52_SESSIONS:] if len(series) > WK52_SESSIONS else series
+    high = float(window.max())
+    low = float(window.min())
+    latest = float(series.iloc[-1])
+
+    return {
+        "wk52_high": round(high, 2),
+        "wk52_low": round(low, 2),
+        # negative or zero: how far below the high it currently trades
+        "from_high": round((latest - high) / high * 100.0, 2) if high > 0 else None,
+        # positive or zero: how far above the low
+        "from_low": round((latest - low) / low * 100.0, 2) if low > 0 else None,
+        "wk52_sessions": int(len(window)),
+    }
+
+
 def compute_returns(
     series: Optional[pd.Series],
 ) -> Tuple[Optional[float], Optional[str], Dict[str, Optional[float]]]:
@@ -457,6 +488,52 @@ def nse_call(fn: Callable[[], Any], label: str) -> Optional[Any]:
     return None
 
 
+def fetch_series_windowed(
+    fetch_fn: Callable[[date, date], Any],
+    close_key: str,
+    date_key: str,
+    schema_label: str,
+    label: str,
+) -> Optional[pd.Series]:
+    """
+    One call for the full range. If the endpoint returns a short or gapped
+    series, refetch in CHUNK_DAYS windows and stitch. Costs nothing extra when
+    the first call already returns full history.
+    """
+    from_date, to_date = date_window()
+    payload = nse_call(lambda: fetch_fn(from_date, to_date), label)
+    series = build_series(payload, close_key, date_key, schema_label)
+
+    if series is not None and len(series) >= MIN_SESSIONS:
+        return series
+
+    got = 0 if series is None else len(series)
+    log(f"    ~ {label}: {got} sessions from one call, refetching in {CHUNK_DAYS}d windows")
+
+    parts: List[pd.Series] = [] if series is None else [series]
+    cursor = to_date
+    guard = 0
+    while cursor > from_date and guard < 12:
+        guard += 1
+        start = max(from_date, cursor - timedelta(days=CHUNK_DAYS))
+        chunk = nse_call(
+            lambda s=start, e=cursor: fetch_fn(s, e),
+            f"{label} {start:%d-%b} to {cursor:%d-%b}",
+        )
+        piece = build_series(chunk, close_key, date_key, "")
+        if piece is not None and not piece.empty:
+            parts.append(piece)
+        cursor = start - timedelta(days=1)
+
+    if not parts:
+        return series
+
+    combined = pd.concat(parts)
+    combined = combined[~combined.index.duplicated(keep="last")].sort_index()
+    log(f"    ~ {label}: stitched to {len(combined)} sessions")
+    return combined
+
+
 def date_window() -> Tuple[date, date]:
     today = datetime.now(IST).date()
     return today - timedelta(days=HISTORY_DAYS), today
@@ -472,19 +549,81 @@ ADJUSTMENTS: Dict[str, List[Dict[str, Any]]] = {}
 MEMBERSHIP: Dict[str, List[str]] = {}
 SPAN_LOGGED: set = set()
 
+# Whatever the previous successful run left on disk. A partial run must never
+# destroy good data, so anything this run fails to refresh is carried forward
+# and flagged stale rather than dropped.
+PRIOR_INDICES: Dict[str, Dict[str, Any]] = {}
+PRIOR_STOCKS: Dict[str, Dict[str, Any]] = {}
+PRIOR_SHARDS: Dict[str, str] = {}
+PRIOR_MEMBERSHIP: Dict[str, List[str]] = {}
 
-def fetch_index_row(client: "NSE", index_name: str) -> Optional[Dict[str, Any]]:
-    from_date, to_date = date_window()
-    raw = nse_call(
-        lambda: client.fetch_historical_index_data(
-            index_name, from_date=from_date, to_date=to_date
-        ),
-        f"history for index '{index_name}'",
-    )
-    if raw is None:
+
+def read_json(path: str) -> Any:
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path, "r", encoding="utf-8") as stream:
+            return json.load(stream)
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
         return None
 
-    series = build_series(raw, "EOD_CLOSE_INDEX_VAL", "EOD_TIMESTAMP", "index")
+
+def load_prior() -> None:
+    """Read the last committed build so this run can only add to it."""
+    indices = read_json(INDICES_FILE)
+    if isinstance(indices, list):
+        for row in indices:
+            if isinstance(row, dict) and row.get("index"):
+                PRIOR_INDICES[str(row["index"])] = row
+
+    stocks = read_json(ALL_STOCKS_FILE)
+    if isinstance(stocks, list):
+        for row in stocks:
+            if isinstance(row, dict) and row.get("symbol"):
+                PRIOR_STOCKS[str(row["symbol"])] = row
+
+    shards = read_json(STOCKS_MAP_FILE)
+    if isinstance(shards, dict):
+        PRIOR_SHARDS.update({str(k): str(v) for k, v in shards.items()})
+
+    membership = read_json(MEMBERSHIP_FILE)
+    if isinstance(membership, dict):
+        for symbol, names in membership.items():
+            if isinstance(names, list):
+                PRIOR_MEMBERSHIP[str(symbol)] = [str(n) for n in names]
+
+    if PRIOR_INDICES or PRIOR_STOCKS:
+        log(
+            f"carrying forward previous build: {len(PRIOR_INDICES)} indices, "
+            f"{len(PRIOR_STOCKS)} stocks"
+        )
+
+
+def merge_rows(
+    prior: Dict[str, Dict[str, Any]],
+    fresh: Dict[str, Dict[str, Any]],
+) -> List[Dict[str, Any]]:
+    """Fresh rows win. Anything not refreshed this run is kept and flagged."""
+    merged: Dict[str, Dict[str, Any]] = {}
+    for key, row in prior.items():
+        carried = dict(row)
+        carried["stale"] = True
+        merged[key] = carried
+    for key, row in fresh.items():
+        current = dict(row)
+        current["stale"] = False
+        merged[key] = current
+    return list(merged.values())
+
+
+def fetch_index_row(client: "NSE", index_name: str) -> Optional[Dict[str, Any]]:
+    series = fetch_series_windowed(
+        lambda f, t: client.fetch_historical_index_data(index_name, from_date=f, to_date=t),
+        "EOD_CLOSE_INDEX_VAL",
+        "EOD_TIMESTAMP",
+        "index",
+        f"history for index '{index_name}'",
+    )
     close, as_of, returns = compute_returns(series)
     if close is None:
         log(f"    ! no usable history for index '{index_name}'")
@@ -498,6 +637,7 @@ def fetch_index_row(client: "NSE", index_name: str) -> Optional[Dict[str, Any]]:
         "from": series.index[0].strftime("%Y-%m-%d") if series is not None else None,
     }
     row.update(returns)
+    row.update(window_extremes(series))
     return row
 
 
@@ -505,14 +645,13 @@ def fetch_stock_row(client: "NSE", symbol: str) -> Optional[Dict[str, Any]]:
     if symbol in _STOCK_CACHE:
         return _STOCK_CACHE[symbol]
 
-    from_date, to_date = date_window()
-    raw = nse_call(
-        lambda: client.fetch_equity_historical_data(
-            symbol, from_date=from_date, to_date=to_date
-        ),
+    series = fetch_series_windowed(
+        lambda f, t: client.fetch_equity_historical_data(symbol, from_date=f, to_date=t),
+        "CH_CLOSING_PRICE",
+        "mTIMESTAMP",
+        "equity",
         f"history for symbol '{symbol}'",
     )
-    series = build_series(raw, "CH_CLOSING_PRICE", "mTIMESTAMP", "equity")
     series, events = adjust_for_corporate_actions(series)
     close, as_of, returns = compute_returns(series)
 
@@ -544,6 +683,7 @@ def fetch_stock_row(client: "NSE", symbol: str) -> Optional[Dict[str, Any]]:
         "from": series.index[0].strftime("%Y-%m-%d"),
     }
     row.update(returns)
+    row.update(window_extremes(series))
     _STOCK_CACHE[symbol] = row
     return row
 
@@ -612,7 +752,13 @@ def write_json(path: str, payload: Any) -> None:
 
 def write_stock_shard(index_name: str, rows: List[Dict[str, Any]]) -> str:
     filename = f"{slugify(index_name)}.json"
-    write_json(os.path.join(STOCKS_DIR, filename), rows)
+    path = os.path.join(STOCKS_DIR, filename)
+    if not rows:
+        existing = read_json(path)
+        if isinstance(existing, list) and existing:
+            log(f"    keeping {len(existing)} previously stored constituents")
+            return filename
+    write_json(path, rows)
     return filename
 
 
@@ -623,28 +769,40 @@ def checkpoint(
     started: float,
 ) -> None:
     try:
-        write_json(INDICES_FILE, indices_payload)
-        write_json(STOCKS_MAP_FILE, shard_map)
-        # Flat universe for the lookup page: every symbol priced this run.
-        write_json(
-            ALL_STOCKS_FILE,
-            sorted(
-                (row for row in _STOCK_CACHE.values() if row),
-                key=lambda r: r["symbol"],
-            ),
+        fresh_indices = {
+            str(row["index"]): row for row in indices_payload if row.get("index")
+        }
+        merged_indices = merge_rows(PRIOR_INDICES, fresh_indices)
+        merged_indices.sort(key=lambda r: str(r.get("index", "")))
+        write_json(INDICES_FILE, merged_indices)
+
+        merged_shards = dict(PRIOR_SHARDS)
+        merged_shards.update(shard_map)
+        write_json(STOCKS_MAP_FILE, merged_shards)
+
+        fresh_stocks = {
+            str(row["symbol"]): row for row in _STOCK_CACHE.values() if row
+        }
+        merged_stocks = merge_rows(PRIOR_STOCKS, fresh_stocks)
+        merged_stocks.sort(key=lambda r: str(r.get("symbol", "")))
+        write_json(ALL_STOCKS_FILE, merged_stocks)
+
+        merged_membership = dict(PRIOR_MEMBERSHIP)
+        merged_membership.update(
+            {symbol: sorted(set(names)) for symbol, names in MEMBERSHIP.items()}
         )
-        write_json(
-            MEMBERSHIP_FILE,
-            {symbol: sorted(set(names)) for symbol, names in MEMBERSHIP.items()},
-        )
+        write_json(MEMBERSHIP_FILE, merged_membership)
         write_json(
             LAST_UPDATED_FILE,
             {
                 "last_updated": datetime.now(IST).isoformat(timespec="seconds"),
                 "last_updated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                "indices_count": len(indices_payload),
+                "indices_count": len(merged_indices),
+                "indices_refreshed": len(indices_payload),
+                "indices_carried_forward": len(merged_indices) - len(indices_payload),
                 "indices_with_stocks": len(shard_map),
-                "unique_symbols": len([r for r in _STOCK_CACHE.values() if r]),
+                "unique_symbols": len(merged_stocks),
+                "symbols_refreshed": len([r for r in _STOCK_CACHE.values() if r]),
                 "symbols_adjusted": len(ADJUSTMENTS),
                 "failures": len(FAILURES),
                 "runtime_minutes": round((time.time() - started) / 60.0, 1),
@@ -679,13 +837,15 @@ def main() -> int:
         f"skip_stocks={SKIP_STOCKS} corp_action_band={CORP_ACTION_BAND:.0%}"
     )
 
+    load_prior()
+
     download_folder = tempfile.mkdtemp(prefix="nse_dl_")
     try:
         client = NSE(download_folder=download_folder, server=True)
     except Exception as exc:  # noqa: BLE001
         log(f"FATAL: could not initialise NSE client: {type(exc).__name__}: {exc}")
         FAILURES.append({"target": "NSE client init", "reason": str(exc)})
-        checkpoint([], {}, finished=False, started=started)
+        log("previous build left untouched")
         return 1
 
     indices_payload: List[Dict[str, Any]] = []
@@ -711,8 +871,7 @@ def main() -> int:
             index_names = index_names[:MAX_INDICES]
 
         if not index_names:
-            log("! listIndices returned nothing usable - writing empty payloads")
-            checkpoint([], {}, finished=False, started=started)
+            log("! listIndices returned nothing usable - previous build left untouched")
             return 1
 
         total = len(index_names)
@@ -791,9 +950,16 @@ def main() -> int:
             f"min {spans[0]}, max {spans[-1]}, {thin} symbols under 150 sessions"
         )
 
+    if PRIOR_INDICES and len(indices_payload) < len(PRIOR_INDICES) * 0.8:
+        log(
+            f"! WARNING: only {len(indices_payload)} of {len(PRIOR_INDICES)} known "
+            f"indices refreshed. The rest were carried forward and marked stale. "
+            f"Check the failures above - this usually means NSE rate-limited the run."
+        )
+
     log(
         f"done in {(time.time() - started) / 60:.1f} min - "
-        f"{len(indices_payload)} indices, {len(shard_map)} shards, "
+        f"{len(indices_payload)} indices refreshed, {len(shard_map)} shards, "
         f"{len(_STOCK_CACHE)} unique symbols, "
         f"{len(ADJUSTMENTS)} corporate-action adjustments, "
         f"{len(FAILURES)} failures"
