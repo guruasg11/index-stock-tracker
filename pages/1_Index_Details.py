@@ -45,24 +45,24 @@ RANGE_LABELS = {
 
 
 def nav_bar(current: str) -> None:
-    """Explicit tabs - sidebar navigation is switched off in config.toml."""
-    tabs = [
-        ("Indices", "app.py"),
-        ("Lookup", "pages/2_Lookup.py"),
-        ("Compare", "pages/3_Compare.py"),
-    ]
-    columns = st.columns(len(tabs) + 4)
+    """Explicit tabs - sidebar navigation is switched off in config.toml.
+
+    st.switch_page cannot be called from an on_click callback, so each button
+    is checked inline instead.
+    """
+    tabs = [("Indices", "app.py"), ("Compare", "pages/3_Compare.py")]
+    columns = st.columns(len(tabs) + 5)
     for column, (label, target) in zip(columns, tabs):
         with column:
-            st.button(
+            clicked = st.button(
                 label,
                 key=f"nav_{label}",
                 width="stretch",
                 type="primary" if label == current else "secondary",
                 disabled=label == current,
-                on_click=None if label == current else st.switch_page,
-                args=None if label == current else (target,),
             )
+        if clicked:
+            st.switch_page(target)
 
 
 def range_column_config() -> Dict[str, Any]:
