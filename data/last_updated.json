@@ -1,11 +1,14 @@
 {
- "last_updated": "2026-08-25T21:12:40+05:30",
- "last_updated_utc": "2026-08-25T15:42:40+00:00",
- "indices_count": 8,
+ "last_updated": "2026-08-26T11:47:25+05:30",
+ "last_updated_utc": "2026-08-26T06:17:25+00:00",
+ "indices_count": 139,
+ "indices_refreshed": 139,
+ "indices_carried_forward": 0,
  "indices_with_stocks": 139,
- "unique_symbols": 115,
- "symbols_adjusted": 10,
- "failures": 347,
- "runtime_minutes": 53.2,
+ "unique_symbols": 872,
+ "symbols_refreshed": 872,
+ "symbols_adjusted": 52,
+ "failures": 0,
+ "runtime_minutes": 73.8,
  "complete": true
 }
