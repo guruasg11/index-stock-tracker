@@ -37,6 +37,47 @@ HORIZON_NAMES = {
 }
 HOME_PAGE = "app.py"
 
+RANGE_COLS = ["wk52_high", "wk52_low", "from_high", "from_low"]
+RANGE_LABELS = {
+    "wk52_high": "52W high", "wk52_low": "52W low",
+    "from_high": "% off high", "from_low": "% off low",
+}
+
+
+def nav_bar(current: str) -> None:
+    """Explicit tabs - sidebar navigation is switched off in config.toml."""
+    tabs = [
+        ("Indices", "app.py"),
+        ("Lookup", "pages/2_Lookup.py"),
+        ("Compare", "pages/3_Compare.py"),
+    ]
+    columns = st.columns(len(tabs) + 4)
+    for column, (label, target) in zip(columns, tabs):
+        with column:
+            st.button(
+                label,
+                key=f"nav_{label}",
+                width="stretch",
+                type="primary" if label == current else "secondary",
+                disabled=label == current,
+                on_click=None if label == current else st.switch_page,
+                args=None if label == current else (target,),
+            )
+
+
+def range_column_config() -> Dict[str, Any]:
+    return {
+        "wk52_high": st.column_config.NumberColumn("52W high", format="%.2f"),
+        "wk52_low": st.column_config.NumberColumn("52W low", format="%.2f"),
+        "from_high": st.column_config.NumberColumn(
+            "% off high", format="%.2f%%", help="Distance below the 52-week high"
+        ),
+        "from_low": st.column_config.NumberColumn(
+            "% off low", format="%.2f%%", help="Distance above the 52-week low"
+        ),
+    }
+
+
 INK = "#12263A"
 RULE = "#DCE1E8"
 PETROL = "#1F5673"
@@ -238,6 +279,7 @@ def back(key: str) -> None:
 # --------------------------------------------------------------------------
 
 inject_css()
+nav_bar("Indices")
 
 selected_index = st.session_state.get("selected_index")
 horizon = st.session_state.get("horizon", "1M")
@@ -303,6 +345,23 @@ for column in RETURN_COLS:
     )
 st.markdown(f'<div class="chips">{"".join(cards)}</div>', unsafe_allow_html=True)
 
+range_cards = []
+for column in RANGE_COLS:
+    value = index_row.get(column)
+    if isinstance(value, (int, float)):
+        if column.startswith("from_"):
+            tone = "up" if value > 0 else ("down" if value < 0 else "flat")
+            text = f"{float(value):+.2f}%"
+        else:
+            tone, text = "flat", f"{float(value):,.2f}"
+    else:
+        tone, text = "flat", "—"
+    range_cards.append(
+        f'<div class="chip {tone}"><div class="k">{RANGE_LABELS[column]}</div>'
+        f'<div class="v">{text}</div></div>'
+    )
+st.markdown(f'<div class="chips">{"".join(range_cards)}</div>', unsafe_allow_html=True)
+
 
 # --------------------------------------------------------------------------
 # Constituents
@@ -331,7 +390,7 @@ if "symbol" not in frame.columns:
     back("back_malformed")
     st.stop()
 
-for column in RETURN_COLS + ["close"]:
+for column in RETURN_COLS + RANGE_COLS + ["close"]:
     if column not in frame.columns:
         frame[column] = np.nan
     frame[column] = pd.to_numeric(frame[column], errors="coerce")
@@ -341,7 +400,7 @@ if "adjusted" not in frame.columns:
     frame["adjusted"] = False
 
 adjusted_symbols = frame.loc[frame["adjusted"].fillna(False).astype(bool), "symbol"].tolist()
-frame = frame[["symbol", "close", "as_of"] + RETURN_COLS]
+frame = frame[["symbol", "close", "as_of"] + RETURN_COLS + RANGE_COLS]
 
 horizon = st.radio(
     "Rank by",
@@ -373,12 +432,13 @@ else:
         f"{len(view)} of {len(frame)} constituents, strongest {HORIZON_NAMES[horizon]} first."
     )
     st.dataframe(
-        heatmap(view, RETURN_COLS),
+        heatmap(view, RETURN_COLS + ["from_high", "from_low"]),
         column_config={
             "symbol": st.column_config.TextColumn("Symbol", width="medium"),
             "close": st.column_config.NumberColumn("Close", format="%.2f"),
             "as_of": st.column_config.TextColumn("As of", width="small"),
             **return_columns(),
+            **range_column_config(),
         },
         hide_index=True,
         width="stretch",
