@@ -20,9 +20,9 @@ on:
         required: false
         default: "0"
       constituent_batch:
-        description: "Constituent lists to refresh per run. 0 = every list that is due."
+        description: "Constituent lists attempted per run. Small on purpose - NSE throttles above ~20."
         required: false
-        default: "60"
+        default: "25"
       rebuild_equity_history:
         description: "1 = discard stored equity sessions and refetch them. Run once after a change to which bhavcopy rows are kept. Adds 20-30 min."
         required: false
@@ -76,7 +76,11 @@ jobs:
           MAX_NEW_DAYS: ${{ github.event.inputs.max_new_days || '0' }}
           REBUILD_EQUITY_HISTORY: ${{ github.event.inputs.rebuild_equity_history || '0' }}
           FORCE_CONSTITUENTS: ${{ github.event.inputs.force_constituents || '0' }}
-          CONSTITUENT_BATCH: ${{ github.event.inputs.constituent_batch || '60' }}
+          CONSTITUENT_BATCH: ${{ github.event.inputs.constituent_batch || '25' }}
+          CONSTITUENT_THROTTLE: "3.0"
+          SESSION_RECYCLE_EVERY: "12"
+          SESSION_COOLDOWN: "20"
+          DEFER_STREAK_LIMIT: "6"
           CONSTITUENT_MAX_AGE: "7"
           MAX_INDICES: ${{ github.event.inputs.max_indices || '0' }}
           SKIP_STOCKS: ${{ github.event.inputs.skip_stocks || '0' }}
