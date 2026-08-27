@@ -113,12 +113,23 @@ FORCE_CONSTITUENTS = os.getenv("FORCE_CONSTITUENTS", "0") == "1"
 # them. 60 a run converges the whole set inside a week and lands a far higher
 # share of what it asks for.
 CONSTITUENT_BATCH = int(os.getenv("CONSTITUENT_BATCH", "60"))
+# Archive URLs probed per index before giving up. Each probe is one request.
+CSV_PROBE_LIMIT = int(os.getenv("CSV_PROBE_LIMIT", "8"))
 
 # NSE's live-market constituents endpoint only serves the ~50 indices in its
 # Live Equity Market dropdown. Everything else answers 200 with an empty
 # payload. The archive publishes a constituent CSV per index instead, on the
 # same host as the bhavcopies, so that is the fallback.
-INDEX_CSV_BASE = "https://nsearchives.nseindia.com/content/indices"
+# NSE's own archive carries the headline indices; niftyindices.com carries the
+# strategy and thematic ones that nsearchives does not publish. Both are tried.
+INDEX_CSV_BASES = [
+    "https://nsearchives.nseindia.com/content/indices",
+    "https://www.niftyindices.com/IndexConstituent",
+]
+
+# Hand-written {index name: csv url} entries, for any index whose file name
+# cannot be derived. Edit this file in the repo; it is never overwritten.
+CSV_OVERRIDES_FILE = os.path.join(DATA_DIR, "constituent_url_overrides.json")
 
 # Index families that hold no equities at all. Probing these wastes requests
 # and their empty result is correct, not a failure.
@@ -175,6 +186,7 @@ PRIOR_CONSTITUENTS: Dict[str, List[str]] = {}
 PRIOR_CONSTITUENT_DATES: Dict[str, str] = {}
 PRIOR_CONSTITUENT_EMPTY: Dict[str, str] = {}
 PRIOR_CONSTITUENT_CSV: Dict[str, str] = {}
+CSV_OVERRIDES: Dict[str, str] = {}
 
 
 def log(message: str) -> None:
@@ -695,6 +707,15 @@ def load_prior() -> None:
             if isinstance(names, list):
                 PRIOR_MEMBERSHIP[str(symbol)] = [str(n) for n in names]
 
+    overrides = read_json(CSV_OVERRIDES_FILE)
+    if isinstance(overrides, dict):
+        for name, url in overrides.items():
+            if isinstance(url, str) and url.startswith("http"):
+                CSV_OVERRIDES[str(name)] = url
+                CSV_OVERRIDES[normalise_name(name)] = url
+        if CSV_OVERRIDES:
+            log(f"loaded {len(overrides)} constituent URL overrides")
+
     stored = read_json(CONSTITUENTS_FILE)
     if isinstance(stored, dict):
         for name, symbols in (stored.get("indices") or {}).items():
@@ -746,31 +767,44 @@ def unwrap_records(payload: Any) -> List[Dict[str, Any]]:
 
 def constituent_csv_urls(index_name: str) -> List[str]:
     """
-    Candidate archive URLs for an index's constituent CSV.
+    Candidate constituent CSV URLs for an index, most likely first.
 
-    NSE's convention is ind_<alphanumeric lowercase name>list.csv:
-    NIFTY 50 -> ind_nifty50list.csv, NIFTY MIDCAP 150 -> ind_niftymidcap150list.csv.
-    Where the display name carries a trailing 'INDEX' the file usually drops it,
-    and '&' appears both spelled out and removed, so several forms are tried.
+    NSE's naming is mostly ind_<alphanumeric lowercase>list.csv - NIFTY 50 ->
+    ind_nifty50list.csv - but it also publishes underscore-separated forms, and
+    strategy indices live on niftyindices.com rather than nsearchives. Both
+    hosts and several name forms are tried; a hit is cached so later runs go
+    straight to it.
     """
+    override = CSV_OVERRIDES.get(str(index_name)) or CSV_OVERRIDES.get(
+        normalise_name(index_name)
+    )
+    if override:
+        return [override]
+
     raw = str(index_name).upper()
     forms: List[str] = []
 
     def add(text: str) -> None:
-        slug = re.sub(r"[^A-Z0-9]+", "", text).lower()
-        if slug and slug not in forms:
-            forms.append(slug)
-        if slug.endswith("index"):
-            trimmed = slug[:-5]
-            if trimmed and trimmed not in forms:
-                forms.append(trimmed)
+        compact = re.sub(r"[^A-Z0-9]+", "", text).lower()
+        snake = re.sub(r"[^A-Z0-9]+", "_", text).strip("_").lower()
+        for slug in (compact, snake):
+            if slug and slug not in forms:
+                forms.append(slug)
+            if slug.endswith("index"):
+                trimmed = slug[:-5].rstrip("_")
+                if trimmed and trimmed not in forms:
+                    forms.append(trimmed)
 
     add(raw)
     add(raw.replace("&", " AND "))
     add(re.sub(r"\s*\(.*?\)", "", raw))          # drop parenthetical suffixes
     add(raw.replace("-", " "))
 
-    return [f"{INDEX_CSV_BASE}/ind_{form}list.csv" for form in forms[:4]]
+    urls: List[str] = []
+    for form in forms[:5]:
+        for base in INDEX_CSV_BASES:
+            urls.append(f"{base}/ind_{form}list.csv")
+    return urls[:CSV_PROBE_LIMIT]
 
 
 def parse_constituent_csv(path: str, index_name: str) -> List[str]:
@@ -902,7 +936,7 @@ def fetch_constituents(
         shape = f"list len={len(payload)}"
     else:
         shape = f"{type(payload).__name__}"
-    tried = ", ".join(constituent_csv_urls(index_name)[:2])
+    tried = ", ".join(constituent_csv_urls(index_name)[:3])
     return [], "empty", f"live '{query}' -> {shape}; csv tried {tried}"
 
 
