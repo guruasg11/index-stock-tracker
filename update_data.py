@@ -47,7 +47,8 @@ Environment overrides (all optional):
     MAX_NEW_DAYS        cap sessions fetched per run,       (default 0)
                         0 = every missing session
     CONSTITUENT_MAX_AGE days before constituents refresh    (default 7)
-    FORCE_CONSTITUENTS  1 = refresh constituents this run   (default 0)
+    FORCE_CONSTITUENTS  1 = refresh every constituent list  (default 0)
+    CONSTITUENT_BATCH   constituent lists refreshed per run (default 40)
     MAX_INDICES         cap indices, 0 = all                (default 0)
     SKIP_STOCKS         1 = build indices only              (default 0)
     CORP_ACTION_BAND    single-day move treated as an       (default 0.25)
@@ -107,6 +108,11 @@ HISTORY_DAYS = int(os.getenv("HISTORY_DAYS", "400"))
 MAX_NEW_DAYS = int(os.getenv("MAX_NEW_DAYS", "0"))
 CONSTITUENT_MAX_AGE = int(os.getenv("CONSTITUENT_MAX_AGE", "7"))
 FORCE_CONSTITUENTS = os.getenv("FORCE_CONSTITUENTS", "0") == "1"
+# Constituent lists are refreshed in batches, oldest first. NSE throttles this
+# endpoint hard from datacentre IPs, so asking for 164 in one run loses most of
+# them. 40 a run converges the whole set inside a week and lands a far higher
+# share of what it asks for.
+CONSTITUENT_BATCH = int(os.getenv("CONSTITUENT_BATCH", "40"))
 MAX_INDICES = int(os.getenv("MAX_INDICES", "0"))
 SKIP_STOCKS = os.getenv("SKIP_STOCKS", "0") == "1"
 CORP_ACTION_BAND = float(os.getenv("CORP_ACTION_BAND", "0.25"))
@@ -151,6 +157,7 @@ PRIOR_STOCKS: Dict[str, Dict[str, Any]] = {}
 PRIOR_SHARDS: Dict[str, str] = {}
 PRIOR_MEMBERSHIP: Dict[str, List[str]] = {}
 PRIOR_CONSTITUENTS: Dict[str, List[str]] = {}
+PRIOR_CONSTITUENT_DATES: Dict[str, str] = {}
 
 
 def log(message: str) -> None:
@@ -673,9 +680,16 @@ def load_prior() -> None:
 
     stored = read_json(CONSTITUENTS_FILE)
     if isinstance(stored, dict):
-        for name, symbols in stored.get("indices", {}).items():
+        for name, symbols in (stored.get("indices") or {}).items():
             if isinstance(symbols, list):
                 PRIOR_CONSTITUENTS[str(name)] = [str(s) for s in symbols]
+        for name, stamp in (stored.get("fetched_at") or {}).items():
+            PRIOR_CONSTITUENT_DATES[str(name)] = str(stamp)
+        # Migrate a single whole-file stamp from the previous format.
+        legacy = stored.get("fetched")
+        if legacy and not PRIOR_CONSTITUENT_DATES:
+            for name in PRIOR_CONSTITUENTS:
+                PRIOR_CONSTITUENT_DATES[name] = str(legacy)
 
     if PRIOR_INDICES or PRIOR_STOCKS:
         log(
@@ -684,18 +698,16 @@ def load_prior() -> None:
         )
 
 
-def constituents_are_stale() -> bool:
-    if FORCE_CONSTITUENTS or not PRIOR_CONSTITUENTS:
-        return True
-    stored = read_json(CONSTITUENTS_FILE)
-    fetched = (stored or {}).get("fetched")
-    if not fetched:
-        return True
+def constituent_age_days(name: str) -> int:
+    """Days since this index's membership was last fetched. Large if never."""
+    stamp = PRIOR_CONSTITUENT_DATES.get(name)
+    if not stamp:
+        return 10 ** 6
     try:
-        age = (datetime.now(IST).date() - datetime.strptime(fetched, "%Y-%m-%d").date()).days
+        fetched = datetime.strptime(stamp, "%Y-%m-%d").date()
     except ValueError:
-        return True
-    return age >= CONSTITUENT_MAX_AGE
+        return 10 ** 6
+    return (datetime.now(IST).date() - fetched).days
 
 
 def unwrap_records(payload: Any) -> List[Dict[str, Any]]:
@@ -747,37 +759,66 @@ def fetch_constituents(client: "NSE", index_name: str) -> List[str]:
 
 
 def refresh_constituents(client: "NSE", index_names: List[str]) -> Dict[str, List[str]]:
-    """Refresh membership if stale, otherwise reuse what is on disk."""
-    if not constituents_are_stale():
-        log(f"constituents still fresh - reusing {len(PRIOR_CONSTITUENTS)} stored lists")
-        return dict(PRIOR_CONSTITUENTS)
+    """
+    Refresh index membership in an aged batch.
 
-    log(f"refreshing constituents for {len(index_names)} indices")
-    fetched: Dict[str, List[str]] = dict(PRIOR_CONSTITUENTS)
+    Every index carries its own last-fetched date. Each run takes the
+    CONSTITUENT_BATCH oldest entries that are past CONSTITUENT_MAX_AGE and
+    refreshes only those; everything else is reused from disk unchanged. A
+    failed index keeps its old date, so it stays at the front of the queue and
+    is retried next run rather than being skipped for a week.
+    """
+    held: Dict[str, List[str]] = dict(PRIOR_CONSTITUENTS)
+    dates: Dict[str, str] = dict(PRIOR_CONSTITUENT_DATES)
+
+    if FORCE_CONSTITUENTS:
+        due = list(index_names)
+    else:
+        due = [n for n in index_names if constituent_age_days(n) >= CONSTITUENT_MAX_AGE]
+        due.sort(key=lambda n: (-constituent_age_days(n), n))
+
+    capped = due[:CONSTITUENT_BATCH] if CONSTITUENT_BATCH > 0 else due
+
+    if not capped:
+        log(f"constituents current - reusing {len(held)} stored lists")
+        return held
+
+    log(
+        f"constituents: {len(due)} of {len(index_names)} due, refreshing "
+        f"{len(capped)} this run (batch={CONSTITUENT_BATCH or 'all'})"
+    )
+
+    today = datetime.now(IST).strftime("%Y-%m-%d")
     refreshed = 0
-    for position, name in enumerate(index_names, start=1):
+    for position, name in enumerate(capped, start=1):
         symbols = fetch_constituents(client, name)
         if symbols:
-            fetched[name] = symbols
+            held[name] = symbols
+            dates[name] = today
             refreshed += 1
-        elif name not in fetched:
-            fetched[name] = []
-        if position % 25 == 0:
-            log(f"  constituents {position}/{len(index_names)} ({refreshed} refreshed)")
+        elif name not in held:
+            held[name] = []
+        if position % 20 == 0:
+            log(f"  constituents {position}/{len(capped)} ({refreshed} refreshed)")
 
     if refreshed:
         write_json(
             CONSTITUENTS_FILE,
             {
-                "fetched": datetime.now(IST).strftime("%Y-%m-%d")
-                if refreshed >= len(index_names) * 0.5
-                else (read_json(CONSTITUENTS_FILE) or {}).get("fetched"),
-                "refreshed": refreshed,
-                "indices": fetched,
+                "updated": today,
+                "refreshed_this_run": refreshed,
+                "lists_held": len(held),
+                "fetched_at": dates,
+                "indices": held,
             },
         )
-    log(f"constituents: {refreshed}/{len(index_names)} refreshed, {len(fetched)} lists held")
-    return fetched
+
+    outstanding = len(due) - refreshed
+    log(
+        f"constituents: {refreshed}/{len(capped)} refreshed, {len(held)} lists held, "
+        f"{outstanding} still due"
+    )
+    return held
 
 
 # --------------------------------------------------------------------------
