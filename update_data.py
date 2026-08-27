@@ -118,7 +118,15 @@ FORCE_CONSTITUENTS = os.getenv("FORCE_CONSTITUENTS", "0") == "1"
 # endpoint hard from datacentre IPs, so asking for 164 in one run loses most of
 # them. 60 a run converges the whole set inside a week and lands a far higher
 # share of what it asks for.
-CONSTITUENT_BATCH = int(os.getenv("CONSTITUENT_BATCH", "60"))
+CONSTITUENT_BATCH = int(os.getenv("CONSTITUENT_BATCH", "25"))
+# NSE throttles the live constituents endpoint after roughly 15-20 calls and
+# then answers 200 with an empty payload rather than an error. A slow pace, a
+# fresh session every few calls, and stopping early on a run of empties keep
+# the run inside that limit instead of collecting worthless responses.
+CONSTITUENT_THROTTLE = float(os.getenv("CONSTITUENT_THROTTLE", "3.0"))
+SESSION_RECYCLE_EVERY = int(os.getenv("SESSION_RECYCLE_EVERY", "12"))
+SESSION_COOLDOWN = float(os.getenv("SESSION_COOLDOWN", "20.0"))
+DEFER_STREAK_LIMIT = int(os.getenv("DEFER_STREAK_LIMIT", "6"))
 # Archive URLs probed per index before giving up. Each probe is one request.
 CSV_PROBE_LIMIT = int(os.getenv("CSV_PROBE_LIMIT", "8"))
 
@@ -762,8 +770,19 @@ def load_prior() -> None:
         for name, stamp in (stored.get("fetched_at") or {}).items():
             if stamp:
                 PRIOR_CONSTITUENT_DATES[str(name)] = str(stamp)
+        poisoned = 0
         for name, note in (stored.get("no_equity_constituents") or {}).items():
-            PRIOR_CONSTITUENT_EMPTY[str(name)] = str(note)
+            name = str(name)
+            if NON_EQUITY_INDEX.search(name):
+                # Genuinely holds no equities. Keep it out of the queue.
+                PRIOR_CONSTITUENT_EMPTY[name] = str(note)
+                continue
+            # Recorded empty by an earlier build that mistook a throttled
+            # response for a real answer. Drop the stamp so it is retried.
+            PRIOR_CONSTITUENT_DATES.pop(name, None)
+            poisoned += 1
+        if poisoned:
+            log(f"cleared {poisoned} indices wrongly marked as having no constituents")
         for name, url in (stored.get("constituent_csv_url") or {}).items():
             PRIOR_CONSTITUENT_CSV[str(name)] = str(url)
         # Migrate a single whole-file stamp from the previous format.
@@ -906,43 +925,44 @@ def fetch_constituents(
     """
     Fetch one index's equity membership.
 
-    Returns (symbols, status, note). Status is one of:
-      ok      - rows returned
-      empty   - neither the live endpoint nor the archive CSV carried equity
-                rows. For G-Sec, bond, VIX and leverage/inverse indices that
-                is the correct answer.
-      error   - the live call raised after every retry.
+    The archive CSV is tried first. It is a static file on the same host that
+    serves the bhavcopies, which tolerates far more volume than the live API.
+    The live endpoint is the fallback, not the default.
 
-    The third element is the archive CSV URL when the fallback supplied the
-    list, so later runs skip straight to it, or a diagnostic note when empty.
+    Returns (symbols, status, note). Status is one of:
+      ok        - rows returned. note holds the CSV URL when the archive
+                  supplied them, so later runs skip straight to it.
+      empty     - a known non-equity index. Correct and final.
+      deferred  - nothing came back, but this index should have constituents.
+                  NOT stamped, so it stays in the queue and is retried. This
+                  is what a throttled response looks like.
     """
     if NON_EQUITY_INDEX.search(str(index_name)):
         return [], "empty", "non-equity index family, not probed"
+
+    symbols, url = fetch_constituents_csv(client, index_name, scratch, known_csv)
+    if symbols:
+        return symbols, "ok", url
 
     query = api_name or index_name
     payload: Any = None
     for attempt in range(1, MAX_ATTEMPTS + 1):
         try:
-            if THROTTLE_SECONDS > 0:
-                time.sleep(THROTTLE_SECONDS)
+            if CONSTITUENT_THROTTLE > 0:
+                time.sleep(CONSTITUENT_THROTTLE)
             payload = client.listEquityStocksByIndex(query)
             break
         except Exception as exc:  # noqa: BLE001
             if attempt == MAX_ATTEMPTS:
                 note = f"{type(exc).__name__}: {exc}"
-                symbols, url = fetch_constituents_csv(
-                    client, index_name, scratch, known_csv
-                )
-                if symbols:
-                    return symbols, "ok", url
                 FAILURES.append(
                     {"target": f"constituents of '{index_name}'", "reason": note}
                 )
-                return [], "error", note
-            time.sleep(3.0 * (2 ** (attempt - 1)))
+                return [], "deferred", note
+            time.sleep(5.0 * (2 ** (attempt - 1)))
 
     rows = unwrap_records(payload)
-    symbols: List[str] = []
+    symbols = []
     seen = set()
     normalised_index = normalise_name(index_name)
     for row in rows:
@@ -950,7 +970,6 @@ def fetch_constituents(
         if not symbol:
             continue
         symbol = str(symbol).strip().upper()
-        # NSE returns the index itself as a pseudo-row; drop it.
         if not symbol or normalise_name(symbol) == normalised_index:
             continue
         if symbol in seen:
@@ -961,21 +980,13 @@ def fetch_constituents(
     if symbols:
         return symbols, "ok", ""
 
-    # The live endpoint only serves the indices in NSE's Live Equity Market
-    # dropdown; everything else answers 200 with an empty payload. Fall back
-    # to the archive constituent CSV.
-    symbols, url = fetch_constituents_csv(client, index_name, scratch, known_csv)
-    if symbols:
-        return symbols, "ok", url
-
     if isinstance(payload, dict):
         shape = f"dict keys={sorted(payload.keys())[:8]} rows={len(rows)}"
     elif isinstance(payload, list):
         shape = f"list len={len(payload)}"
     else:
         shape = f"{type(payload).__name__}"
-    tried = ", ".join(constituent_csv_urls(index_name)[:3])
-    return [], "empty", f"live '{query}' -> {shape}; csv tried {tried}"
+    return [], "deferred", f"live '{query}' -> {shape} (throttled or unsupported)"
 
 
 def build_api_name_map(client: "NSE", archive_names: List[str]) -> Dict[str, str]:
@@ -1011,94 +1022,127 @@ def build_api_name_map(client: "NSE", archive_names: List[str]) -> Dict[str, str
 
 
 def refresh_constituents(
-    client: "NSE", index_names: List[str], scratch: str
-) -> Dict[str, List[str]]:
+    client: "NSE",
+    index_names: List[str],
+    scratch: str,
+    new_client: Optional[Callable[[], "NSE"]] = None,
+) -> Tuple[Dict[str, List[str]], "NSE"]:
     """
-    Refresh index membership in an aged batch.
+    Refresh index membership in a small aged batch.
 
-    Every index carries its own last-fetched date. Each run takes the
-    CONSTITUENT_BATCH oldest entries past CONSTITUENT_MAX_AGE. An index that
-    returns no rows is stamped anyway and marked no-equity, so G-Sec, bond and
-    leverage indices stop consuming a slot on every run. Only a raised error
-    leaves the date untouched, keeping that index at the front of the queue.
+    Only two outcomes stamp a date: a real list, and a known non-equity index.
+    Anything else is deferred, keeps no date, and is retried on the next run.
+    That is what stops a throttled empty response from being cached as fact.
+
+    The session is recycled every SESSION_RECYCLE_EVERY calls, and the batch
+    stops early after DEFER_STREAK_LIMIT consecutive deferrals - once NSE is
+    throttling, further calls only waste time.
     """
     held: Dict[str, List[str]] = dict(PRIOR_CONSTITUENTS)
     dates: Dict[str, str] = dict(PRIOR_CONSTITUENT_DATES)
     empties: Dict[str, str] = dict(PRIOR_CONSTITUENT_EMPTY)
     csv_urls: Dict[str, str] = dict(PRIOR_CONSTITUENT_CSV)
+    deferred_notes: Dict[str, str] = {}
 
     if FORCE_CONSTITUENTS:
-        due = list(index_names)
+        due = [n for n in index_names if not NON_EQUITY_INDEX.search(n)]
     else:
         due = [n for n in index_names if constituent_age_days(n) >= CONSTITUENT_MAX_AGE]
-        due.sort(key=lambda n: (-constituent_age_days(n), n))
+    # Indices with no list at all come first; a stale list still renders.
+    due.sort(key=lambda n: (1 if held.get(n) else 0, -constituent_age_days(n), n))
 
     capped = due[:CONSTITUENT_BATCH] if CONSTITUENT_BATCH > 0 else due
 
     if not capped:
         log(f"constituents current - reusing {len(held)} stored lists")
-        return held
+        return held, client
 
     api_map = build_api_name_map(client, capped)
 
     log(
-        f"constituents: {len(due)} of {len(index_names)} due, refreshing "
-        f"{len(capped)} this run (batch={CONSTITUENT_BATCH or 'all'})"
+        f"constituents: {len(due)} of {len(index_names)} due, attempting "
+        f"{len(capped)} this run (batch={CONSTITUENT_BATCH or 'all'}, "
+        f"throttle={CONSTITUENT_THROTTLE}s)"
     )
 
     today = datetime.now(IST).strftime("%Y-%m-%d")
-    counts = {"ok": 0, "empty": 0, "error": 0, "via_csv": 0}
+    counts = {"ok": 0, "empty": 0, "deferred": 0, "via_csv": 0}
+    defer_streak = 0
+    calls = 0
+
     for position, name in enumerate(capped, start=1):
+        if new_client and calls and calls % SESSION_RECYCLE_EVERY == 0:
+            log(f"  recycling NSE session after {calls} calls, {SESSION_COOLDOWN:.0f}s cooldown")
+            try:
+                client.exit()
+            except Exception:  # noqa: BLE001
+                pass
+            time.sleep(SESSION_COOLDOWN)
+            try:
+                client = new_client()
+            except Exception as exc:  # noqa: BLE001
+                log(f"  ! could not reopen session ({type(exc).__name__}); stopping batch")
+                break
+
         symbols, status, note = fetch_constituents(
             client, name, scratch, api_map.get(name), csv_urls.get(name)
         )
+        calls += 1
         counts[status] += 1
+
         if status == "ok":
             held[name] = symbols
             dates[name] = today
             empties.pop(name, None)
+            deferred_notes.pop(name, None)
+            defer_streak = 0
             if note.startswith("http"):
                 csv_urls[name] = note
                 counts["via_csv"] += 1
+            log(f"  [{position}/{len(capped)}] ok       {name} ({len(symbols)})")
         elif status == "empty":
-            # Stamped so it leaves the queue until the next age cycle.
             held.setdefault(name, [])
             dates[name] = today
             empties[name] = note
-        if position % 20 == 0:
-            log(
-                f"  constituents {position}/{len(capped)} "
-                f"(ok={counts['ok']} empty={counts['empty']} error={counts['error']})"
-            )
+            defer_streak = 0
+        else:
+            deferred_notes[name] = note
+            defer_streak += 1
+            log(f"  [{position}/{len(capped)}] deferred {name}")
+            if defer_streak >= DEFER_STREAK_LIMIT:
+                log(
+                    f"  stopping batch after {defer_streak} consecutive deferrals "
+                    f"- NSE is throttling. The rest stay queued for the next run."
+                )
+                break
 
-    if counts["ok"] or counts["empty"]:
-        write_json(
-            CONSTITUENTS_FILE,
-            {
-                "updated": today,
-                "refreshed_this_run": counts["ok"],
-                "empty_this_run": counts["empty"],
-                "errors_this_run": counts["error"],
-                "lists_held": len(held),
-                "from_archive_csv": counts["via_csv"],
-                "fetched_at": dates,
-                "constituent_csv_url": csv_urls,
-                "no_equity_constituents": empties,
-                "indices": held,
-            },
-        )
+    write_json(
+        CONSTITUENTS_FILE,
+        {
+            "updated": today,
+            "refreshed_this_run": counts["ok"],
+            "from_archive_csv": counts["via_csv"],
+            "deferred_this_run": counts["deferred"],
+            "non_equity_this_run": counts["empty"],
+            "lists_held": len(held),
+            "lists_with_stocks": sum(1 for v in held.values() if v),
+            "fetched_at": dates,
+            "constituent_csv_url": csv_urls,
+            "no_equity_constituents": empties,
+            "deferred": deferred_notes,
+            "indices": held,
+        },
+    )
 
+    populated = sum(1 for v in held.values() if v)
     outstanding = len(due) - counts["ok"] - counts["empty"]
     log(
         f"constituents: ok={counts['ok']} (csv={counts['via_csv']}) "
-        f"empty={counts['empty']} error={counts['error']}, "
-        f"{len(held)} lists held, {outstanding} still due"
+        f"non-equity={counts['empty']} deferred={counts['deferred']}, "
+        f"{populated}/{len(held)} indices now have a stock list, "
+        f"{outstanding} still due"
     )
-    if counts["empty"]:
-        sample = [n for n in capped if n in empties][:6]
-        for name in sample:
-            log(f"    empty[{name}] {empties[name]}")
-    return held
+    return held, client
 
 
 # --------------------------------------------------------------------------
@@ -1284,8 +1328,12 @@ def main() -> int:
     load_prior()
 
     scratch = tempfile.mkdtemp(prefix="nse_dl_")
+
+    def open_client() -> "NSE":
+        return NSE(download_folder=scratch, server=True)
+
     try:
-        client = NSE(download_folder=scratch, server=True)
+        client = open_client()
     except Exception as exc:  # noqa: BLE001
         log(f"FATAL: could not initialise NSE client: {type(exc).__name__}: {exc}")
         FAILURES.append({"target": "NSE client init", "reason": str(exc)})
@@ -1332,7 +1380,9 @@ def main() -> int:
     constituents: Dict[str, List[str]] = {}
     if not SKIP_STOCKS:
         try:
-            constituents = refresh_constituents(client, index_names, scratch)
+            constituents, client = refresh_constituents(
+                client, index_names, scratch, open_client
+            )
         except Exception as exc:  # noqa: BLE001
             log(f"! constituent refresh aborted: {type(exc).__name__}: {exc}")
             constituents = dict(PRIOR_CONSTITUENTS)
