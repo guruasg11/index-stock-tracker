@@ -113,6 +113,21 @@ FORCE_CONSTITUENTS = os.getenv("FORCE_CONSTITUENTS", "0") == "1"
 # them. 60 a run converges the whole set inside a week and lands a far higher
 # share of what it asks for.
 CONSTITUENT_BATCH = int(os.getenv("CONSTITUENT_BATCH", "60"))
+
+# NSE's live-market constituents endpoint only serves the ~50 indices in its
+# Live Equity Market dropdown. Everything else answers 200 with an empty
+# payload. The archive publishes a constituent CSV per index instead, on the
+# same host as the bhavcopies, so that is the fallback.
+INDEX_CSV_BASE = "https://nsearchives.nseindia.com/content/indices"
+
+# Index families that hold no equities at all. Probing these wastes requests
+# and their empty result is correct, not a failure.
+NON_EQUITY_INDEX = re.compile(
+    r"G-SEC|GSEC|BHARAT BOND|INDIA VIX|1D RATE|DIVIDEND POINTS|"
+    r"PR 1X|PR 2X|TR 1X|TR 2X|\bUSD\b|ARBITRAGE|FUTURES INDEX|FUTURES TR|"
+    r"CLEAN PRICE",
+    re.IGNORECASE,
+)
 MAX_INDICES = int(os.getenv("MAX_INDICES", "0"))
 SKIP_STOCKS = os.getenv("SKIP_STOCKS", "0") == "1"
 CORP_ACTION_BAND = float(os.getenv("CORP_ACTION_BAND", "0.25"))
@@ -159,6 +174,7 @@ PRIOR_MEMBERSHIP: Dict[str, List[str]] = {}
 PRIOR_CONSTITUENTS: Dict[str, List[str]] = {}
 PRIOR_CONSTITUENT_DATES: Dict[str, str] = {}
 PRIOR_CONSTITUENT_EMPTY: Dict[str, str] = {}
+PRIOR_CONSTITUENT_CSV: Dict[str, str] = {}
 
 
 def log(message: str) -> None:
@@ -689,6 +705,8 @@ def load_prior() -> None:
                 PRIOR_CONSTITUENT_DATES[str(name)] = str(stamp)
         for name, note in (stored.get("no_equity_constituents") or {}).items():
             PRIOR_CONSTITUENT_EMPTY[str(name)] = str(note)
+        for name, url in (stored.get("constituent_csv_url") or {}).items():
+            PRIOR_CONSTITUENT_CSV[str(name)] = str(url)
         # Migrate a single whole-file stamp from the previous format.
         legacy = stored.get("fetched")
         if legacy and not PRIOR_CONSTITUENT_DATES:
@@ -726,19 +744,109 @@ def unwrap_records(payload: Any) -> List[Dict[str, Any]]:
     return []
 
 
+def constituent_csv_urls(index_name: str) -> List[str]:
+    """
+    Candidate archive URLs for an index's constituent CSV.
+
+    NSE's convention is ind_<alphanumeric lowercase name>list.csv:
+    NIFTY 50 -> ind_nifty50list.csv, NIFTY MIDCAP 150 -> ind_niftymidcap150list.csv.
+    Where the display name carries a trailing 'INDEX' the file usually drops it,
+    and '&' appears both spelled out and removed, so several forms are tried.
+    """
+    raw = str(index_name).upper()
+    forms: List[str] = []
+
+    def add(text: str) -> None:
+        slug = re.sub(r"[^A-Z0-9]+", "", text).lower()
+        if slug and slug not in forms:
+            forms.append(slug)
+        if slug.endswith("index"):
+            trimmed = slug[:-5]
+            if trimmed and trimmed not in forms:
+                forms.append(trimmed)
+
+    add(raw)
+    add(raw.replace("&", " AND "))
+    add(re.sub(r"\s*\(.*?\)", "", raw))          # drop parenthetical suffixes
+    add(raw.replace("-", " "))
+
+    return [f"{INDEX_CSV_BASE}/ind_{form}list.csv" for form in forms[:4]]
+
+
+def parse_constituent_csv(path: str, index_name: str) -> List[str]:
+    try:
+        frame = pd.read_csv(path)
+    except Exception:  # noqa: BLE001
+        return []
+    frame.columns = [str(c).strip() for c in frame.columns]
+    symbol_col = _pick_column(frame, ("SYMBOL", "TCKRSYMB"))
+    if not symbol_col:
+        return []
+    series_col = _pick_column(frame, ("SERIES", "SCTYSRS"))
+    if series_col:
+        values = frame[series_col].astype(str).str.strip().str.upper()
+        keep = frame[values.isin(EQUITY_SERIES)]
+        if not keep.empty:
+            frame = keep
+    symbols: List[str] = []
+    seen = set()
+    normalised_index = normalise_name(index_name)
+    for value in frame[symbol_col].astype(str):
+        symbol = value.strip().upper()
+        if not symbol or symbol in seen or normalise_name(symbol) == normalised_index:
+            continue
+        seen.add(symbol)
+        symbols.append(symbol)
+    return symbols
+
+
+def fetch_constituents_csv(
+    client: "NSE", index_name: str, scratch: str, known_url: Optional[str] = None
+) -> Tuple[List[str], str]:
+    """Archive CSV fallback. Returns (symbols, url_that_worked)."""
+    urls = [known_url] if known_url else constituent_csv_urls(index_name)
+    for url in urls:
+        if not url:
+            continue
+        try:
+            if THROTTLE_SECONDS > 0:
+                time.sleep(THROTTLE_SECONDS)
+            path = client.download_document(url, folder=scratch)
+        except Exception:  # noqa: BLE001 - a 404 here just means wrong guess
+            continue
+        symbols = parse_constituent_csv(str(path), index_name)
+        try:
+            os.remove(str(path))
+        except OSError:
+            pass
+        if symbols:
+            return symbols, url
+    return [], ""
+
+
 def fetch_constituents(
-    client: "NSE", index_name: str, api_name: Optional[str] = None
+    client: "NSE",
+    index_name: str,
+    scratch: str,
+    api_name: Optional[str] = None,
+    known_csv: Optional[str] = None,
 ) -> Tuple[List[str], str, str]:
     """
     Fetch one index's equity membership.
 
     Returns (symbols, status, note). Status is one of:
       ok      - rows returned
-      empty   - the call succeeded but carried no equity rows. Either a
-                non-equity index (G-Sec, bond, VIX, leverage/inverse) or a
-                name NSE's endpoint does not accept.
-      error   - the call raised after every retry.
+      empty   - neither the live endpoint nor the archive CSV carried equity
+                rows. For G-Sec, bond, VIX and leverage/inverse indices that
+                is the correct answer.
+      error   - the live call raised after every retry.
+
+    The third element is the archive CSV URL when the fallback supplied the
+    list, so later runs skip straight to it, or a diagnostic note when empty.
     """
+    if NON_EQUITY_INDEX.search(str(index_name)):
+        return [], "empty", "non-equity index family, not probed"
+
     query = api_name or index_name
     payload: Any = None
     for attempt in range(1, MAX_ATTEMPTS + 1):
@@ -750,6 +858,11 @@ def fetch_constituents(
         except Exception as exc:  # noqa: BLE001
             if attempt == MAX_ATTEMPTS:
                 note = f"{type(exc).__name__}: {exc}"
+                symbols, url = fetch_constituents_csv(
+                    client, index_name, scratch, known_csv
+                )
+                if symbols:
+                    return symbols, "ok", url
                 FAILURES.append(
                     {"target": f"constituents of '{index_name}'", "reason": note}
                 )
@@ -776,15 +889,21 @@ def fetch_constituents(
     if symbols:
         return symbols, "ok", ""
 
-    # No rows. Record exactly what came back so a name rejection can be told
-    # apart from a throttle that answers 200 with nothing.
+    # The live endpoint only serves the indices in NSE's Live Equity Market
+    # dropdown; everything else answers 200 with an empty payload. Fall back
+    # to the archive constituent CSV.
+    symbols, url = fetch_constituents_csv(client, index_name, scratch, known_csv)
+    if symbols:
+        return symbols, "ok", url
+
     if isinstance(payload, dict):
         shape = f"dict keys={sorted(payload.keys())[:8]} rows={len(rows)}"
     elif isinstance(payload, list):
         shape = f"list len={len(payload)}"
     else:
         shape = f"{type(payload).__name__}"
-    return [], "empty", f"queried '{query}' -> {shape}"
+    tried = ", ".join(constituent_csv_urls(index_name)[:2])
+    return [], "empty", f"live '{query}' -> {shape}; csv tried {tried}"
 
 
 def build_api_name_map(client: "NSE", archive_names: List[str]) -> Dict[str, str]:
@@ -819,7 +938,9 @@ def build_api_name_map(client: "NSE", archive_names: List[str]) -> Dict[str, str
     return mapping
 
 
-def refresh_constituents(client: "NSE", index_names: List[str]) -> Dict[str, List[str]]:
+def refresh_constituents(
+    client: "NSE", index_names: List[str], scratch: str
+) -> Dict[str, List[str]]:
     """
     Refresh index membership in an aged batch.
 
@@ -832,6 +953,7 @@ def refresh_constituents(client: "NSE", index_names: List[str]) -> Dict[str, Lis
     held: Dict[str, List[str]] = dict(PRIOR_CONSTITUENTS)
     dates: Dict[str, str] = dict(PRIOR_CONSTITUENT_DATES)
     empties: Dict[str, str] = dict(PRIOR_CONSTITUENT_EMPTY)
+    csv_urls: Dict[str, str] = dict(PRIOR_CONSTITUENT_CSV)
 
     if FORCE_CONSTITUENTS:
         due = list(index_names)
@@ -853,14 +975,19 @@ def refresh_constituents(client: "NSE", index_names: List[str]) -> Dict[str, Lis
     )
 
     today = datetime.now(IST).strftime("%Y-%m-%d")
-    counts = {"ok": 0, "empty": 0, "error": 0}
+    counts = {"ok": 0, "empty": 0, "error": 0, "via_csv": 0}
     for position, name in enumerate(capped, start=1):
-        symbols, status, note = fetch_constituents(client, name, api_map.get(name))
+        symbols, status, note = fetch_constituents(
+            client, name, scratch, api_map.get(name), csv_urls.get(name)
+        )
         counts[status] += 1
         if status == "ok":
             held[name] = symbols
             dates[name] = today
             empties.pop(name, None)
+            if note.startswith("http"):
+                csv_urls[name] = note
+                counts["via_csv"] += 1
         elif status == "empty":
             # Stamped so it leaves the queue until the next age cycle.
             held.setdefault(name, [])
@@ -881,7 +1008,9 @@ def refresh_constituents(client: "NSE", index_names: List[str]) -> Dict[str, Lis
                 "empty_this_run": counts["empty"],
                 "errors_this_run": counts["error"],
                 "lists_held": len(held),
+                "from_archive_csv": counts["via_csv"],
                 "fetched_at": dates,
+                "constituent_csv_url": csv_urls,
                 "no_equity_constituents": empties,
                 "indices": held,
             },
@@ -889,8 +1018,9 @@ def refresh_constituents(client: "NSE", index_names: List[str]) -> Dict[str, Lis
 
     outstanding = len(due) - counts["ok"] - counts["empty"]
     log(
-        f"constituents: ok={counts['ok']} empty={counts['empty']} "
-        f"error={counts['error']}, {len(held)} lists held, {outstanding} still due"
+        f"constituents: ok={counts['ok']} (csv={counts['via_csv']}) "
+        f"empty={counts['empty']} error={counts['error']}, "
+        f"{len(held)} lists held, {outstanding} still due"
     )
     if counts["empty"]:
         sample = [n for n in capped if n in empties][:6]
@@ -1130,7 +1260,7 @@ def main() -> int:
     constituents: Dict[str, List[str]] = {}
     if not SKIP_STOCKS:
         try:
-            constituents = refresh_constituents(client, index_names)
+            constituents = refresh_constituents(client, index_names, scratch)
         except Exception as exc:  # noqa: BLE001
             log(f"! constituent refresh aborted: {type(exc).__name__}: {exc}")
             constituents = dict(PRIOR_CONSTITUENTS)
