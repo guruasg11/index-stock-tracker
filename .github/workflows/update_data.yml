@@ -2,18 +2,29 @@ name: Update NSE data
 
 on:
   schedule:
-    # 14:00 UTC = 19:30 IST, Monday-Friday.
-    # NSE closes 15:30 IST; EOD files are reliably published by ~19:00 IST.
-    # GitHub's scheduler is best-effort and can lag 5-30 minutes under load.
-    - cron: "0 14 * * 1-5"
+    # 13:35 UTC = 19:05 IST. NSE publishes the CM bhavcopy around 18:15 IST
+    # and ind_close_all around 18:30 IST, so 19:05 clears both.
+    # :35 rather than :00 to avoid GitHub's top-of-hour scheduler congestion.
+    - cron: "35 13 * * 1-5"
+    # 16:35 UTC = 22:05 IST. Safety net. If the evening run already stored the
+    # session this is a no-op costing four requests and commits nothing.
+    - cron: "35 16 * * 1-5"
   workflow_dispatch:
     inputs:
+      max_new_days:
+        description: "Cap sessions fetched this run. 0 = every missing session. Use 100 to stage a first backfill."
+        required: false
+        default: "0"
+      force_constituents:
+        description: "1 = refresh index membership this run regardless of age."
+        required: false
+        default: "0"
       max_indices:
-        description: "Number of indices to process. 0 = every index on NSE."
+        description: "Cap indices processed. 0 = all."
         required: false
         default: "0"
       skip_stocks:
-        description: "Build indices only, no constituents. 1 = skip, 0 = include."
+        description: "1 = build indices only, no constituents."
         required: false
         default: "0"
 
@@ -27,7 +38,9 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    # A warm daily run takes 2-4 minutes. A full cold backfill takes 25-45.
+    # 120 leaves headroom without approaching GitHub's 360-minute hard cap.
+    timeout-minutes: 120
 
     steps:
       - name: Checkout repository
@@ -48,15 +61,18 @@ jobs:
       - name: Build data files
         env:
           TZ: Asia/Kolkata
-          MAX_INDICES: ${{ github.event.inputs.max_indices || '0' }}
-          SKIP_STOCKS: ${{ github.event.inputs.skip_stocks || '0' }}
-          NSE_THROTTLE: "0.35"
-          NSE_ATTEMPTS: "3"
+          NSE_THROTTLE: "1.0"
+          NSE_ATTEMPTS: "4"
           HISTORY_DAYS: "400"
           CORP_ACTION_BAND: "0.25"
+          MAX_NEW_DAYS: ${{ github.event.inputs.max_new_days || '0' }}
+          FORCE_CONSTITUENTS: ${{ github.event.inputs.force_constituents || '0' }}
+          MAX_INDICES: ${{ github.event.inputs.max_indices || '0' }}
+          SKIP_STOCKS: ${{ github.event.inputs.skip_stocks || '0' }}
         run: python update_data.py
 
       - name: Commit and push updated data
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
