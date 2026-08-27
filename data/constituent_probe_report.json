@@ -1,0 +1,464 @@
+{
+ "found": {
+  "NIFTY CAPITAL MARKETS": {
+   "symbols": 17,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftycapitalmarkets_list.csv"
+  },
+  "NIFTY CONGLOMERATE 50": {
+   "symbols": 50,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftyconglomerate50_list.csv"
+  },
+  "NIFTY CONSUMER DURABLES": {
+   "symbols": 13,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftyconsumerdurableslist.csv"
+  },
+  "NIFTY CORE HOUSING": {
+   "symbols": 30,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftycorehousing_list.csv"
+  },
+  "NIFTY FINANCIAL SERVICES EX-BANK": {
+   "symbols": 30,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftyfinancialservicesexbank_list.csv"
+  },
+  "NIFTY HEALTHCARE INDEX": {
+   "symbols": 20,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftyhealthcarelist.csv"
+  },
+  "NIFTY INDIA DEFENCE": {
+   "symbols": 19,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftyindiadefence_list.csv"
+  },
+  "NIFTY INDIA DIGITAL": {
+   "symbols": 51,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftyindiadigital_list.csv"
+  },
+  "NIFTY INDIA FPI 150": {
+   "symbols": 150,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftyindiafpi150_list.csv"
+  },
+  "NIFTY INDIA INTERNET": {
+   "symbols": 27,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftyindiainternet_list.csv"
+  },
+  "NIFTY INDIA MANUFACTURING": {
+   "symbols": 76,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftyindiamanufacturing_list.csv"
+  },
+  "NIFTY INDIA NEW AGE CONSUMPTION": {
+   "symbols": 75,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftyindianewageconsumption_list.csv"
+  },
+  "NIFTY INDIA RAILWAYS PSU": {
+   "symbols": 17,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftyindiarailwayspsu_list.csv"
+  },
+  "NIFTY INDIA SELECT 5 CORPORATE GROUPS (MAATR)": {
+   "symbols": 42,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftyindiaselect5corporategroupsmaatr_list.csv"
+  },
+  "NIFTY INDIA TOURISM": {
+   "symbols": 15,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftyindiatourism_list.csv"
+  },
+  "NIFTY MICROCAP 250": {
+   "symbols": 252,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftymicrocap250_list.csv"
+  },
+  "NIFTY MIDCAP SELECT": {
+   "symbols": 25,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftymidcapselect_list.csv"
+  },
+  "NIFTY MIDCAP150 MOMENTUM 50": {
+   "symbols": 50,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftymidcap150momentum50_list.csv"
+  },
+  "NIFTY MIDCAP150 QUALITY 50": {
+   "symbols": 50,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftymidcap150quality50list.csv"
+  },
+  "NIFTY MIDSMALL HEALTHCARE": {
+   "symbols": 30,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftymidsmallhealthcare_list.csv"
+  },
+  "NIFTY MIDSMALL INDIA CONSUMPTION": {
+   "symbols": 30,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftymidsmallindiaconsumption_list.csv"
+  },
+  "NIFTY MIDSMALL IT & TELECOM": {
+   "symbols": 20,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftymidsmallitandtelecom_list.csv"
+  },
+  "NIFTY MIDSMALLCAP400 50:50": {
+   "symbols": 400,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftymidsmallcap4005050_list.csv"
+  },
+  "NIFTY MIDSMALLCAP400 MOMENTUM QUALITY 100": {
+   "symbols": 100,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftymidsmallcap400momentumquality100_list.csv"
+  },
+  "NIFTY REITS & REALTY": {
+   "symbols": 15,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftyreitsrealty_list.csv"
+  },
+  "NIFTY SMALLCAP250 MOMENTUM QUALITY 100": {
+   "symbols": 100,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftysmallcap250momentumquality100_list.csv"
+  },
+  "NIFTY SMALLCAP250 QUALITY 50": {
+   "symbols": 50,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftysmallcap250quality50_list.csv"
+  },
+  "NIFTY TOP 10 EQUAL WEIGHT": {
+   "symbols": 10,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftytop10equalweight_list.csv"
+  },
+  "NIFTY TOP 15 EQUAL WEIGHT": {
+   "symbols": 15,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftytop15equalweight_list.csv"
+  },
+  "NIFTY TOP 20 EQUAL WEIGHT": {
+   "symbols": 20,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftytop20equalweight_list.csv"
+  },
+  "NIFTY TOTAL MARKET": {
+   "symbols": 752,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftytotalmarket_list.csv"
+  },
+  "NIFTY TOTAL MARKET MOMENTUM QUALITY 50": {
+   "symbols": 50,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftytotalmarketmomentumquality50_list.csv"
+  },
+  "NIFTY TRANSPORTATION & LOGISTICS": {
+   "symbols": 30,
+   "url": "https://nsearchives.nseindia.com/content/indices/ind_niftytransportationandlogistics_list.csv"
+  },
+  "NIFTY100 LOW VOLATILITY 30": {
+   "symbols": 30,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty100lowvolatility30list.csv"
+  },
+  "NIFTY100 QUALITY 30": {
+   "symbols": 30,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty100quality30list.csv"
+  },
+  "NIFTY200 MOMENTUM 30": {
+   "symbols": 30,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty200momentum30_list.csv"
+  },
+  "NIFTY200 QUALITY 30": {
+   "symbols": 30,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty200quality30_list.csv"
+  },
+  "NIFTY50 EQUAL WEIGHT": {
+   "symbols": 50,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty50equalweight.csv"
+  },
+  "NIFTY500 EQUAL WEIGHT": {
+   "symbols": 500,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty500equalweight_list.csv"
+  },
+  "NIFTY500 FLEXICAP QUALITY 30": {
+   "symbols": 30,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty500flexicapquality30_list.csv"
+  },
+  "NIFTY500 HEALTHCARE": {
+   "symbols": 48,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty500healthcare_list.csv"
+  },
+  "NIFTY500 LARGEMIDSMALL EQUAL-CAP WEIGHTED": {
+   "symbols": 500,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty500largemidsmallequalcapweighted_list.csv"
+  },
+  "NIFTY500 LOW VOLATILITY 50": {
+   "symbols": 50,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty500lowvolatility50_list.csv"
+  },
+  "NIFTY500 MOMENTUM 50": {
+   "symbols": 50,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty500momentum50_list.csv"
+  },
+  "NIFTY500 MULTICAP 50:25:25": {
+   "symbols": 500,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty500multicap502525_list.csv"
+  },
+  "NIFTY500 MULTICAP INDIA MANUFACTURING 50:30:20": {
+   "symbols": 75,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty500multicapindiamanufacturing503020_list.csv"
+  },
+  "NIFTY500 MULTICAP INFRASTRUCTURE 50:30:20": {
+   "symbols": 75,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty500multicapinfrastructure503020_list.csv"
+  },
+  "NIFTY500 MULTICAP MOMENTUM QUALITY 50": {
+   "symbols": 50,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty500multicapmomentumquality50_list.csv"
+  },
+  "NIFTY500 MULTIFACTOR MQVLV 50": {
+   "symbols": 50,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty500multifactormqvlv50_list.csv"
+  },
+  "NIFTY500 QUALITY 50": {
+   "symbols": 50,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty500quality50_list.csv"
+  },
+  "Nifty Capital Goods": {
+   "symbols": 50,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftycapitalgoods_list.csv"
+  },
+  "Nifty Commercial & Transport Services": {
+   "symbols": 26,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftycommercialtransportservices_list.csv"
+  },
+  "Nifty Construction": {
+   "symbols": 23,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftyconstruction_list.csv"
+  },
+  "Nifty Consumer Services": {
+   "symbols": 46,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftyconsumerservices_list.csv"
+  },
+  "Nifty Hospitals": {
+   "symbols": 13,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftyhospitals_list.csv"
+  },
+  "Nifty Housing Finance": {
+   "symbols": 10,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftyhousingfinance_list.csv"
+  },
+  "Nifty India Defence Equal Weight": {
+   "symbols": 19,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftyindiadefenceequalweight_list.csv"
+  },
+  "Nifty Insurance": {
+   "symbols": 12,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftyinsurance_list.csv"
+  },
+  "Nifty NBFC": {
+   "symbols": 19,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftynbfc_list.csv"
+  },
+  "Nifty Next 100": {
+   "symbols": 100,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftynext100_list.csv"
+  },
+  "Nifty Power": {
+   "symbols": 21,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftypower_list.csv"
+  },
+  "Nifty Retail": {
+   "symbols": 26,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftyretail_list.csv"
+  },
+  "Nifty Sugar & Ethanol": {
+   "symbols": 15,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftysugarethanol_list.csv"
+  },
+  "Nifty Telecommunications": {
+   "symbols": 13,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_niftytelecommunications_list.csv"
+  },
+  "Nifty500 Ahimsa": {
+   "symbols": 326,
+   "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty500ahimsa_list.csv"
+  }
+ },
+ "not_found": {
+  "NIFTY DIVIDEND OPPORTUNITIES 50": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftydividendopportunities50list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftydividendopportunities50list.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftydividendopportunities50list.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftydividendopportunities50list.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftydividendopportunities50_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftydividendopportunities50_list.csv"
+  ],
+  "NIFTY EV & NEW AGE AUTOMOTIVE": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyevnewageautomotivelist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyevnewageautomotivelist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftyevnewageautomotivelist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftyevnewageautomotivelist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyevnewageautomotive_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyevnewageautomotive_list.csv"
+  ],
+  "NIFTY FINANCIAL SERVICES": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyfinancialserviceslist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyfinancialserviceslist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftyfinancialserviceslist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftyfinancialserviceslist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyfinancialservices_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyfinancialservices_list.csv"
+  ],
+  "NIFTY FINANCIAL SERVICES 25/50": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyfinancialservices2550list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyfinancialservices2550list.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftyfinancialservices2550list.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftyfinancialservices2550list.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyfinancialservices2550_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyfinancialservices2550_list.csv"
+  ],
+  "NIFTY GROWTH SECTORS 15": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftygrowthsectors15list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftygrowthsectors15list.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftygrowthsectors15list.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftygrowthsectors15list.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftygrowthsectors15_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftygrowthsectors15_list.csv"
+  ],
+  "NIFTY INDIA CONSUMPTION": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyindiaconsumptionlist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyindiaconsumptionlist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftyindiaconsumptionlist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftyindiaconsumptionlist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyindiaconsumption_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyindiaconsumption_list.csv"
+  ],
+  "NIFTY INDIA CORPORATE GROUP INDEX - TATA GROUP 25% CAP": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyindiacorporategroupindextatagroup25caplist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyindiacorporategroupindextatagroup25caplist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftyindiacorporategroupindextatagroup25caplist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftyindiacorporategroupindextatagroup25caplist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyindiacorporategroupindextatagroup25cap_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyindiacorporategroupindextatagroup25cap_list.csv"
+  ],
+  "NIFTY INDIA INFRASTRUCTURE & LOGISTICS": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyindiainfrastructurelogisticslist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyindiainfrastructurelogisticslist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftyindiainfrastructurelogisticslist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftyindiainfrastructurelogisticslist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyindiainfrastructurelogistics_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyindiainfrastructurelogistics_list.csv"
+  ],
+  "NIFTY INFRASTRUCTURE": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyinfrastructurelist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyinfrastructurelist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftyinfrastructurelist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftyinfrastructurelist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyinfrastructure_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyinfrastructure_list.csv"
+  ],
+  "NIFTY MIDCAP LIQUID 15": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftymidcapliquid15list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftymidcapliquid15list.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftymidcapliquid15list.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftymidcapliquid15list.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftymidcapliquid15_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftymidcapliquid15_list.csv"
+  ],
+  "NIFTY MIDSMALL FINANCIAL SERVICES": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftymidsmallfinancialserviceslist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftymidsmallfinancialserviceslist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftymidsmallfinancialserviceslist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftymidsmallfinancialserviceslist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftymidsmallfinancialservices_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftymidsmallfinancialservices_list.csv"
+  ],
+  "NIFTY NON-CYCLICAL CONSUMER": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftynoncyclicalconsumerlist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftynoncyclicalconsumerlist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftynoncyclicalconsumerlist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftynoncyclicalconsumerlist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftynoncyclicalconsumer_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftynoncyclicalconsumer_list.csv"
+  ],
+  "NIFTY PRIVATE BANK": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyprivatebanklist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyprivatebanklist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftyprivatebanklist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftyprivatebanklist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyprivatebank_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyprivatebank_list.csv"
+  ],
+  "NIFTY SERVICES SECTOR": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyservicessectorlist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyservicessectorlist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftyservicessectorlist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftyservicessectorlist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyservicessector_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyservicessector_list.csv"
+  ],
+  "NIFTY SME EMERGE": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftysmeemergelist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftysmeemergelist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftysmeemergelist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftysmeemergelist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftysmeemerge_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftysmeemerge_list.csv"
+  ],
+  "NIFTY100 ENHANCED ESG": [
+   "https://nsearchives.nseindia.com/content/indices/ind_nifty100enhancedesglist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_nifty100enhancedesglist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_nifty100enhancedesglist.csv",
+   "https://archives.nseindia.com/content/indices/ind_nifty100enhancedesglist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_nifty100enhancedesg_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_nifty100enhancedesg_list.csv"
+  ],
+  "NIFTY100 EQUAL WEIGHT": [
+   "https://nsearchives.nseindia.com/content/indices/ind_nifty100equalweightlist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_nifty100equalweightlist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_nifty100equalweightlist.csv",
+   "https://archives.nseindia.com/content/indices/ind_nifty100equalweightlist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_nifty100equalweight_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_nifty100equalweight_list.csv"
+  ],
+  "NIFTY100 ESG SECTOR LEADERS": [
+   "https://nsearchives.nseindia.com/content/indices/ind_nifty100esgsectorleaderslist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_nifty100esgsectorleaderslist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_nifty100esgsectorleaderslist.csv",
+   "https://archives.nseindia.com/content/indices/ind_nifty100esgsectorleaderslist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_nifty100esgsectorleaders_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_nifty100esgsectorleaders_list.csv"
+  ],
+  "NIFTY100 LIQUID 15": [
+   "https://nsearchives.nseindia.com/content/indices/ind_nifty100liquid15list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_nifty100liquid15list.csv",
+   "https://niftyindices.com/IndexConstituent/ind_nifty100liquid15list.csv",
+   "https://archives.nseindia.com/content/indices/ind_nifty100liquid15list.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_nifty100liquid15_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_nifty100liquid15_list.csv"
+  ],
+  "Nifty India Corporate Group Index - Aditya Birla Group": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyindiacorporategroupindexadityabirlagrouplist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyindiacorporategroupindexadityabirlagrouplist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftyindiacorporategroupindexadityabirlagrouplist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftyindiacorporategroupindexadityabirlagrouplist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyindiacorporategroupindexadityabirlagroup_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyindiacorporategroupindexadityabirlagroup_list.csv"
+  ],
+  "Nifty India Corporate Group Index - Mahindra Group": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyindiacorporategroupindexmahindragrouplist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyindiacorporategroupindexmahindragrouplist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftyindiacorporategroupindexmahindragrouplist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftyindiacorporategroupindexmahindragrouplist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyindiacorporategroupindexmahindragroup_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyindiacorporategroupindexmahindragroup_list.csv"
+  ],
+  "Nifty India Corporate Group Index - Tata Group": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyindiacorporategroupindextatagrouplist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyindiacorporategroupindextatagrouplist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftyindiacorporategroupindextatagrouplist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftyindiacorporategroupindextatagrouplist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyindiacorporategroupindextatagroup_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyindiacorporategroupindextatagroup_list.csv"
+  ],
+  "Nifty REITs & InvITs": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyreitsinvitslist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyreitsinvitslist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftyreitsinvitslist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftyreitsinvitslist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftyreitsinvits_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftyreitsinvits_list.csv"
+  ],
+  "Nifty Small Finance Banks & Microfinance Institutions": [
+   "https://nsearchives.nseindia.com/content/indices/ind_niftysmallfinancebanksmicrofinanceinstitutionslist.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftysmallfinancebanksmicrofinanceinstitutionslist.csv",
+   "https://niftyindices.com/IndexConstituent/ind_niftysmallfinancebanksmicrofinanceinstitutionslist.csv",
+   "https://archives.nseindia.com/content/indices/ind_niftysmallfinancebanksmicrofinanceinstitutionslist.csv",
+   "https://nsearchives.nseindia.com/content/indices/ind_niftysmallfinancebanksmicrofinanceinstitutions_list.csv",
+   "https://www.niftyindices.com/IndexConstituent/ind_niftysmallfinancebanksmicrofinanceinstitutions_list.csv"
+  ]
+ },
+ "summary": {
+  "found": 65,
+  "not_found": 24,
+  "probed": 89,
+  "requests": 1181
+ }
+}
