@@ -23,6 +23,10 @@ on:
         description: "Constituent lists to refresh per run. 0 = every list that is due."
         required: false
         default: "60"
+      rebuild_equity_history:
+        description: "1 = discard stored equity sessions and refetch them. Run once after a change to which bhavcopy rows are kept. Adds 20-30 min."
+        required: false
+        default: "0"
       max_indices:
         description: "Cap indices processed. 0 = all."
         required: false
@@ -70,6 +74,7 @@ jobs:
           HISTORY_DAYS: "400"
           CORP_ACTION_BAND: "0.25"
           MAX_NEW_DAYS: ${{ github.event.inputs.max_new_days || '0' }}
+          REBUILD_EQUITY_HISTORY: ${{ github.event.inputs.rebuild_equity_history || '0' }}
           FORCE_CONSTITUENTS: ${{ github.event.inputs.force_constituents || '0' }}
           CONSTITUENT_BATCH: ${{ github.event.inputs.constituent_batch || '60' }}
           CONSTITUENT_MAX_AGE: "7"
