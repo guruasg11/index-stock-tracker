@@ -110,9 +110,9 @@ CONSTITUENT_MAX_AGE = int(os.getenv("CONSTITUENT_MAX_AGE", "7"))
 FORCE_CONSTITUENTS = os.getenv("FORCE_CONSTITUENTS", "0") == "1"
 # Constituent lists are refreshed in batches, oldest first. NSE throttles this
 # endpoint hard from datacentre IPs, so asking for 164 in one run loses most of
-# them. 40 a run converges the whole set inside a week and lands a far higher
+# them. 60 a run converges the whole set inside a week and lands a far higher
 # share of what it asks for.
-CONSTITUENT_BATCH = int(os.getenv("CONSTITUENT_BATCH", "40"))
+CONSTITUENT_BATCH = int(os.getenv("CONSTITUENT_BATCH", "60"))
 MAX_INDICES = int(os.getenv("MAX_INDICES", "0"))
 SKIP_STOCKS = os.getenv("SKIP_STOCKS", "0") == "1"
 CORP_ACTION_BAND = float(os.getenv("CORP_ACTION_BAND", "0.25"))
@@ -158,6 +158,7 @@ PRIOR_SHARDS: Dict[str, str] = {}
 PRIOR_MEMBERSHIP: Dict[str, List[str]] = {}
 PRIOR_CONSTITUENTS: Dict[str, List[str]] = {}
 PRIOR_CONSTITUENT_DATES: Dict[str, str] = {}
+PRIOR_CONSTITUENT_EMPTY: Dict[str, str] = {}
 
 
 def log(message: str) -> None:
@@ -684,7 +685,10 @@ def load_prior() -> None:
             if isinstance(symbols, list):
                 PRIOR_CONSTITUENTS[str(name)] = [str(s) for s in symbols]
         for name, stamp in (stored.get("fetched_at") or {}).items():
-            PRIOR_CONSTITUENT_DATES[str(name)] = str(stamp)
+            if stamp:
+                PRIOR_CONSTITUENT_DATES[str(name)] = str(stamp)
+        for name, note in (stored.get("no_equity_constituents") or {}).items():
+            PRIOR_CONSTITUENT_EMPTY[str(name)] = str(note)
         # Migrate a single whole-file stamp from the previous format.
         legacy = stored.get("fetched")
         if legacy and not PRIOR_CONSTITUENT_DATES:
@@ -722,22 +726,35 @@ def unwrap_records(payload: Any) -> List[Dict[str, Any]]:
     return []
 
 
-def fetch_constituents(client: "NSE", index_name: str) -> List[str]:
+def fetch_constituents(
+    client: "NSE", index_name: str, api_name: Optional[str] = None
+) -> Tuple[List[str], str, str]:
+    """
+    Fetch one index's equity membership.
+
+    Returns (symbols, status, note). Status is one of:
+      ok      - rows returned
+      empty   - the call succeeded but carried no equity rows. Either a
+                non-equity index (G-Sec, bond, VIX, leverage/inverse) or a
+                name NSE's endpoint does not accept.
+      error   - the call raised after every retry.
+    """
+    query = api_name or index_name
+    payload: Any = None
     for attempt in range(1, MAX_ATTEMPTS + 1):
         try:
             if THROTTLE_SECONDS > 0:
                 time.sleep(THROTTLE_SECONDS)
-            payload = client.listEquityStocksByIndex(index_name)
+            payload = client.listEquityStocksByIndex(query)
             break
         except Exception as exc:  # noqa: BLE001
             if attempt == MAX_ATTEMPTS:
+                note = f"{type(exc).__name__}: {exc}"
                 FAILURES.append(
-                    {"target": f"constituents of '{index_name}'", "reason": str(exc)}
+                    {"target": f"constituents of '{index_name}'", "reason": note}
                 )
-                return []
+                return [], "error", note
             time.sleep(3.0 * (2 ** (attempt - 1)))
-    else:
-        return []
 
     rows = unwrap_records(payload)
     symbols: List[str] = []
@@ -755,7 +772,51 @@ def fetch_constituents(client: "NSE", index_name: str) -> List[str]:
             continue
         seen.add(symbol)
         symbols.append(symbol)
-    return symbols
+
+    if symbols:
+        return symbols, "ok", ""
+
+    # No rows. Record exactly what came back so a name rejection can be told
+    # apart from a throttle that answers 200 with nothing.
+    if isinstance(payload, dict):
+        shape = f"dict keys={sorted(payload.keys())[:8]} rows={len(rows)}"
+    elif isinstance(payload, list):
+        shape = f"list len={len(payload)}"
+    else:
+        shape = f"{type(payload).__name__}"
+    return [], "empty", f"queried '{query}' -> {shape}"
+
+
+def build_api_name_map(client: "NSE", archive_names: List[str]) -> Dict[str, str]:
+    """
+    One listIndices call per run, purely to translate archive index names into
+    the exact strings NSE's constituents endpoint accepts. The archive writes
+    'Nifty India Digital'; the endpoint wants its own spelling. Matching is on
+    the alphanumeric-only form, so casing and punctuation differences resolve.
+    """
+    try:
+        if THROTTLE_SECONDS > 0:
+            time.sleep(THROTTLE_SECONDS)
+        payload = client.listIndices()
+    except Exception as exc:  # noqa: BLE001
+        log(f"  ~ listIndices unavailable ({type(exc).__name__}); using archive names")
+        FAILURES.append({"target": "listIndices", "reason": str(exc)})
+        return {}
+
+    api_names: List[str] = []
+    for row in unwrap_records(payload):
+        name = row.get("index") or row.get("indexName") or row.get("key")
+        if name:
+            api_names.append(str(name).strip())
+
+    by_key = {normalise_name(n): n for n in api_names}
+    mapping = {}
+    for archive_name in archive_names:
+        match = by_key.get(normalise_name(archive_name))
+        if match and match != archive_name:
+            mapping[archive_name] = match
+    log(f"  listIndices: {len(api_names)} names, {len(mapping)} differ from the archive")
+    return mapping
 
 
 def refresh_constituents(client: "NSE", index_names: List[str]) -> Dict[str, List[str]]:
@@ -763,13 +824,14 @@ def refresh_constituents(client: "NSE", index_names: List[str]) -> Dict[str, Lis
     Refresh index membership in an aged batch.
 
     Every index carries its own last-fetched date. Each run takes the
-    CONSTITUENT_BATCH oldest entries that are past CONSTITUENT_MAX_AGE and
-    refreshes only those; everything else is reused from disk unchanged. A
-    failed index keeps its old date, so it stays at the front of the queue and
-    is retried next run rather than being skipped for a week.
+    CONSTITUENT_BATCH oldest entries past CONSTITUENT_MAX_AGE. An index that
+    returns no rows is stamped anyway and marked no-equity, so G-Sec, bond and
+    leverage indices stop consuming a slot on every run. Only a raised error
+    leaves the date untouched, keeping that index at the front of the queue.
     """
     held: Dict[str, List[str]] = dict(PRIOR_CONSTITUENTS)
     dates: Dict[str, str] = dict(PRIOR_CONSTITUENT_DATES)
+    empties: Dict[str, str] = dict(PRIOR_CONSTITUENT_EMPTY)
 
     if FORCE_CONSTITUENTS:
         due = list(index_names)
@@ -783,41 +845,57 @@ def refresh_constituents(client: "NSE", index_names: List[str]) -> Dict[str, Lis
         log(f"constituents current - reusing {len(held)} stored lists")
         return held
 
+    api_map = build_api_name_map(client, capped)
+
     log(
         f"constituents: {len(due)} of {len(index_names)} due, refreshing "
         f"{len(capped)} this run (batch={CONSTITUENT_BATCH or 'all'})"
     )
 
     today = datetime.now(IST).strftime("%Y-%m-%d")
-    refreshed = 0
+    counts = {"ok": 0, "empty": 0, "error": 0}
     for position, name in enumerate(capped, start=1):
-        symbols = fetch_constituents(client, name)
-        if symbols:
+        symbols, status, note = fetch_constituents(client, name, api_map.get(name))
+        counts[status] += 1
+        if status == "ok":
             held[name] = symbols
             dates[name] = today
-            refreshed += 1
-        elif name not in held:
-            held[name] = []
+            empties.pop(name, None)
+        elif status == "empty":
+            # Stamped so it leaves the queue until the next age cycle.
+            held.setdefault(name, [])
+            dates[name] = today
+            empties[name] = note
         if position % 20 == 0:
-            log(f"  constituents {position}/{len(capped)} ({refreshed} refreshed)")
+            log(
+                f"  constituents {position}/{len(capped)} "
+                f"(ok={counts['ok']} empty={counts['empty']} error={counts['error']})"
+            )
 
-    if refreshed:
+    if counts["ok"] or counts["empty"]:
         write_json(
             CONSTITUENTS_FILE,
             {
                 "updated": today,
-                "refreshed_this_run": refreshed,
+                "refreshed_this_run": counts["ok"],
+                "empty_this_run": counts["empty"],
+                "errors_this_run": counts["error"],
                 "lists_held": len(held),
                 "fetched_at": dates,
+                "no_equity_constituents": empties,
                 "indices": held,
             },
         )
 
-    outstanding = len(due) - refreshed
+    outstanding = len(due) - counts["ok"] - counts["empty"]
     log(
-        f"constituents: {refreshed}/{len(capped)} refreshed, {len(held)} lists held, "
-        f"{outstanding} still due"
+        f"constituents: ok={counts['ok']} empty={counts['empty']} "
+        f"error={counts['error']}, {len(held)} lists held, {outstanding} still due"
     )
+    if counts["empty"]:
+        sample = [n for n in capped if n in empties][:6]
+        for name in sample:
+            log(f"    empty[{name}] {empties[name]}")
     return held
 
 
