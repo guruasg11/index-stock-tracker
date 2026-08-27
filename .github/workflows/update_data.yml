@@ -16,9 +16,13 @@ on:
         required: false
         default: "0"
       force_constituents:
-        description: "1 = refresh index membership this run regardless of age."
+        description: "1 = refresh every index membership list this run, ignoring age and batch size."
         required: false
         default: "0"
+      constituent_batch:
+        description: "Constituent lists to refresh per run. 0 = every list that is due."
+        required: false
+        default: "40"
       max_indices:
         description: "Cap indices processed. 0 = all."
         required: false
@@ -67,6 +71,8 @@ jobs:
           CORP_ACTION_BAND: "0.25"
           MAX_NEW_DAYS: ${{ github.event.inputs.max_new_days || '0' }}
           FORCE_CONSTITUENTS: ${{ github.event.inputs.force_constituents || '0' }}
+          CONSTITUENT_BATCH: ${{ github.event.inputs.constituent_batch || '40' }}
+          CONSTITUENT_MAX_AGE: "7"
           MAX_INDICES: ${{ github.event.inputs.max_indices || '0' }}
           SKIP_STOCKS: ${{ github.event.inputs.skip_stocks || '0' }}
         run: python update_data.py
