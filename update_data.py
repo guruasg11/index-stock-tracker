@@ -46,6 +46,9 @@ Environment overrides (all optional):
     HISTORY_DAYS        calendar days of history to keep    (default 400)
     MAX_NEW_DAYS        cap sessions fetched per run,       (default 0)
                         0 = every missing session
+    REBUILD_EQUITY_HISTORY  1 = discard and refetch equity   (default 0)
+                        sessions. Run once after changing
+                        which bhavcopy rows are kept.
     CONSTITUENT_MAX_AGE days before constituents refresh    (default 7)
     FORCE_CONSTITUENTS  1 = refresh every constituent list  (default 0)
     CONSTITUENT_BATCH   constituent lists refreshed per run (default 40)
@@ -106,6 +109,9 @@ THROTTLE_SECONDS = float(os.getenv("NSE_THROTTLE", "1.0"))
 MAX_ATTEMPTS = int(os.getenv("NSE_ATTEMPTS", "4"))
 HISTORY_DAYS = int(os.getenv("HISTORY_DAYS", "400"))
 MAX_NEW_DAYS = int(os.getenv("MAX_NEW_DAYS", "0"))
+# 1 = discard the stored equity sessions and refetch them. Needed once after
+# a change to which bhavcopy rows are kept, since stored files are filtered.
+REBUILD_EQUITY_HISTORY = os.getenv("REBUILD_EQUITY_HISTORY", "0") == "1"
 CONSTITUENT_MAX_AGE = int(os.getenv("CONSTITUENT_MAX_AGE", "7"))
 FORCE_CONSTITUENTS = os.getenv("FORCE_CONSTITUENTS", "0") == "1"
 # Constituent lists are refreshed in batches, oldest first. NSE throttles this
@@ -150,9 +156,19 @@ MAX_CONSECUTIVE_MISSES = int(os.getenv("MAX_CONSECUTIVE_MISSES", "8"))
 WK52_SESSIONS = 252
 IST = timezone(timedelta(hours=5, minutes=30))
 
-# Equity series that represent ordinary shares. Everything else in the
-# bhavcopy - rights entitlements, partly paid, debt - is dropped.
-EQUITY_SERIES = {"EQ", "BE", "BZ", "SM", "ST", "IL"}
+# Cash-segment series to keep when the bhavcopy carries no instrument-type
+# column. With UDiFF the FinInstrmTp == 'STK' filter already removes futures
+# and options, so the series whitelist is only a fallback for the older layout.
+# It includes REIT and InvIT codes; a whitelist that omitted them silently
+# dropped every REIT and InvIT constituent from the price history.
+EQUITY_SERIES = {
+    "EQ", "BE", "BZ", "SM", "ST", "IL",
+    "RR", "IV", "MF", "RT", "IN",
+}
+
+# Series that are never a tradable share line: rights entitlements and
+# partly-paid forms. Dropped whenever the column is present.
+EXCLUDED_SERIES = {"RE", "E1", "E2", "PP", "W1", "W3", "Y1", "Z1"}
 
 # Periods measured in TRADING SESSIONS, not calendar days. Three calendar days
 # back from a Monday lands on the same Friday close as one session back, so
@@ -403,7 +419,19 @@ def parse_equity_bhavcopy(path: str) -> Optional[pd.DataFrame]:
     series_col = _pick_column(frame, EQ_SERIES_KEYS)
     if series_col:
         values = frame[series_col].astype(str).str.strip().str.upper()
-        frame = frame[values.isin(EQUITY_SERIES)]
+        if instrument_col:
+            # STK has already removed derivatives, so only drop the series
+            # that are definitely not a share line. Keeping the rest is what
+            # lets REITs and InvITs through.
+            frame = frame[~values.isin(EXCLUDED_SERIES)]
+        else:
+            frame = frame[values.isin(EQUITY_SERIES)]
+        if "equity_series_kept" not in SCHEMA_SEEN:
+            kept = sorted(
+                set(frame[series_col].astype(str).str.strip().str.upper())
+            )[:20]
+            SCHEMA_SEEN["equity_series_kept"] = kept
+            log(f"  schema[equity] series kept: {kept}")
 
     out = pd.DataFrame(
         {
@@ -544,6 +572,16 @@ def sync_history(client: "NSE", scratch: str) -> Dict[str, int]:
     """
     today = datetime.now(IST).date()
     window_start = today - timedelta(days=HISTORY_DAYS)
+
+    if REBUILD_EQUITY_HISTORY:
+        wiped = 0
+        for session in stored_sessions(EQ_HISTORY_DIR):
+            try:
+                os.remove(os.path.join(EQ_HISTORY_DIR, f"{session:%Y-%m-%d}.csv.gz"))
+                wiped += 1
+            except OSError:
+                pass
+        log(f"REBUILD_EQUITY_HISTORY set - discarded {wiped} stored equity sessions")
 
     have_eq = set(stored_sessions(EQ_HISTORY_DIR))
     have_idx = set(stored_sessions(IDX_HISTORY_DIR))
