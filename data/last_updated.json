@@ -1,6 +1,6 @@
 {
- "last_updated": "2026-09-18T01:20:42+05:30",
- "last_updated_utc": "2026-09-17T19:50:42+00:00",
+ "last_updated": "2026-09-18T22:41:09+05:30",
+ "last_updated_utc": "2026-09-18T17:11:09+00:00",
  "source": "NSE daily archive bhavcopy",
  "indices_count": 165,
  "indices_refreshed": 165,
@@ -10,7 +10,7 @@
  "symbols_refreshed": 0,
  "symbols_adjusted": 0,
  "equity_sessions_stored": 0,
- "index_sessions_stored": 285,
+ "index_sessions_stored": 286,
  "equity_sessions_added": 0,
  "index_sessions_added": 0,
  "failures": 1,
