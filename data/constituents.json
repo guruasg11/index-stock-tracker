@@ -1,9 +1,9 @@
 {
  "updated": "2026-09-22",
- "refreshed_this_run": 8,
- "from_archive_csv": 8,
- "deferred_this_run": 11,
- "non_equity_this_run": 2,
+ "refreshed_this_run": 0,
+ "from_archive_csv": 0,
+ "deferred_this_run": 6,
+ "non_equity_this_run": 0,
  "lists_held": 165,
  "lists_with_stocks": 80,
  "fetched_at": {
@@ -167,17 +167,12 @@
   "Nifty 50 Futures TR Index": "non-equity index family, not probed"
  },
  "deferred": {
-  "Nifty India Corporate Group Index - Aditya Birla Group": "live 'Nifty India Corporate Group Index - Aditya Birla Group' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "Nifty India Corporate Group Index - Mahindra Group": "live 'Nifty India Corporate Group Index - Mahindra Group' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "Nifty India Corporate Group Index - Tata Group": "live 'Nifty India Corporate Group Index - Tata Group' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "Nifty REITs & InvITs": "live 'Nifty REITs & InvITs' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "Nifty Small Finance Banks & Microfinance Institutions": "live 'Nifty Small Finance Banks & Microfinance Institutions' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "NIFTY DIVIDEND OPPORTUNITIES 50": "live 'NIFTY DIVIDEND OPPORTUNITIES 50' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
   "NIFTY EV & NEW AGE AUTOMOTIVE": "live 'NIFTY EV & NEW AGE AUTOMOTIVE' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
   "NIFTY FINANCIAL SERVICES": "live 'NIFTY FINANCIAL SERVICES' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
   "NIFTY FINANCIAL SERVICES 25/50": "live 'NIFTY FINANCIAL SERVICES 25/50' -> dict keys=[] rows=0 (throttled or unsupported)",
   "NIFTY GROWTH SECTORS 15": "live 'NIFTY GROWTH SECTORS 15' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "NIFTY INDIA CONSUMPTION": "live 'NIFTY INDIA CONSUMPTION' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)"
+  "NIFTY INDIA CONSUMPTION": "live 'NIFTY INDIA CONSUMPTION' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
+  "NIFTY INDIA CORPORATE GROUP INDEX - TATA GROUP 25% CAP": "live 'NIFTY INDIA CORPORATE GROUP INDEX - TATA GROUP 25% CAP' -> dict keys=[] rows=0 (throttled or unsupported)"
  },
  "indices": {
   "INDIA VIX": [],
