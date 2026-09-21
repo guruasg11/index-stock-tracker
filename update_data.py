@@ -1048,8 +1048,33 @@ def refresh_constituents(
         due = [n for n in index_names if not NON_EQUITY_INDEX.search(n)]
     else:
         due = [n for n in index_names if constituent_age_days(n) >= CONSTITUENT_MAX_AGE]
+
     # Indices with no list at all come first; a stale list still renders.
-    due.sort(key=lambda n: (1 if held.get(n) else 0, -constituent_age_days(n), n))
+    # Within each group this used to sort oldest-first with a deterministic
+    # name tiebreak, which means the SAME names sit at the front of the
+    # queue every single day. If those particular names fail (a bad
+    # CSV-slug guess, or NSE returning an empty payload for them
+    # specifically), DEFER_STREAK_LIMIT aborts the run at that same point
+    # every time and nothing past roughly position 6 is ever attempted -
+    # forever, regardless of how many days pass.
+    #
+    # A day-indexed rotation inside each group fixes that: a bad name can
+    # still fail today, but it shifts out of the front of tomorrow's
+    # window instead of permanently blocking it, and every due name gets
+    # a turn within CONSTITUENT_BATCH-sized steps.
+    def _rotate(names: List[str]) -> List[str]:
+        if CONSTITUENT_BATCH <= 0 or len(names) <= CONSTITUENT_BATCH:
+            return names
+        offset = (datetime.now(IST).toordinal() * CONSTITUENT_BATCH) % len(names)
+        return names[offset:] + names[:offset]
+
+    unheld = sorted(
+        (n for n in due if not held.get(n)), key=lambda n: (-constituent_age_days(n), n)
+    )
+    stale = sorted(
+        (n for n in due if held.get(n)), key=lambda n: (-constituent_age_days(n), n)
+    )
+    due = _rotate(unheld) + _rotate(stale)
 
     capped = due[:CONSTITUENT_BATCH] if CONSTITUENT_BATCH > 0 else due
 
