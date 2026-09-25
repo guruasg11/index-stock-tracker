@@ -1,5 +1,5 @@
 {
- "updated": "2026-09-25",
+ "updated": "2026-09-26",
  "refreshed_this_run": 0,
  "from_archive_csv": 0,
  "deferred_this_run": 6,
@@ -239,12 +239,12 @@
   "Nifty 50 Futures TR Index": "non-equity index family, not probed"
  },
  "deferred": {
+  "NIFTY SERVICES SECTOR": "live 'NIFTY SERVICES SECTOR' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
+  "NIFTY SME EMERGE": "live 'NIFTY SME EMERGE' -> dict keys=['data', 'marketStatus'] rows=1 (throttled or unsupported)",
+  "NIFTY100 ENHANCED ESG": "live 'NIFTY100 ENHANCED ESG' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
   "NIFTY100 EQUAL WEIGHT": "live 'NIFTY100 EQUAL WEIGHT' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
   "NIFTY100 ESG SECTOR LEADERS": "live 'NIFTY100 ESG SECTOR LEADERS' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "NIFTY100 LIQUID 15": "live 'NIFTY100 LIQUID 15' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "Nifty India Corporate Group Index - Aditya Birla Group": "live 'Nifty India Corporate Group Index - Aditya Birla Group' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "Nifty India Corporate Group Index - Mahindra Group": "live 'Nifty India Corporate Group Index - Mahindra Group' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "Nifty India Corporate Group Index - Tata Group": "live 'Nifty India Corporate Group Index - Tata Group' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)"
+  "NIFTY100 LIQUID 15": "live 'NIFTY100 LIQUID 15' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)"
  },
  "indices": {
   "INDIA VIX": [],
