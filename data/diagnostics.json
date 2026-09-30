@@ -2,6 +2,25 @@
  "corporate_action_band": 0.25,
  "history_days": 400,
  "detected_schema": {
+  "indices_bhavcopy": {
+   "index": "Index Name",
+   "close": "Closing Index Value",
+   "columns": [
+    "Index Name",
+    "Index Date",
+    "Open Index Value",
+    "High Index Value",
+    "Low Index Value",
+    "Closing Index Value",
+    "Points Change",
+    "Change(%)",
+    "Volume",
+    "Turnover (Rs. Cr.)",
+    "P/E",
+    "P/B",
+    "Div Yield"
+   ]
+  },
   "equity_bhavcopy": {
    "symbol": "TckrSymb",
    "close": "ClsPric",

@@ -1,8 +1,8 @@
 {
- "updated": "2026-09-30",
- "refreshed_this_run": 4,
- "from_archive_csv": 4,
- "deferred_this_run": 11,
+ "updated": "2026-10-01",
+ "refreshed_this_run": 0,
+ "from_archive_csv": 0,
+ "deferred_this_run": 6,
  "non_equity_this_run": 0,
  "lists_held": 166,
  "lists_with_stocks": 120,
@@ -247,17 +247,12 @@
   "Nifty 50 Futures TR Index": "non-equity index family, not probed"
  },
  "deferred": {
-  "NIFTY INDIA CONSUMPTION": "live 'NIFTY INDIA CONSUMPTION' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "NIFTY INDIA CORPORATE GROUP INDEX - TATA GROUP 25% CAP": "live 'NIFTY INDIA CORPORATE GROUP INDEX - TATA GROUP 25% CAP' -> dict keys=[] rows=0 (throttled or unsupported)",
-  "NIFTY INDIA INFRASTRUCTURE & LOGISTICS": "live 'NIFTY INDIA INFRASTRUCTURE & LOGISTICS' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "NIFTY INFRASTRUCTURE": "live 'NIFTY INFRASTRUCTURE' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "NIFTY MIDCAP LIQUID 15": "live 'NIFTY MIDCAP LIQUID 15' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "NIFTY MIDSMALL FINANCIAL SERVICES": "live 'NIFTY MIDSMALL FINANCIAL SERVICES' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "NIFTY NON-CYCLICAL CONSUMER": "live 'NIFTY NON-CYCLICAL CONSUMER' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "NIFTY PRIVATE BANK": "live 'NIFTY PRIVATE BANK' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "NIFTY SERVICES SECTOR": "live 'NIFTY SERVICES SECTOR' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
-  "NIFTY SME EMERGE": "live 'NIFTY SME EMERGE' -> dict keys=['data', 'marketStatus'] rows=1 (throttled or unsupported)",
-  "NIFTY100 ENHANCED ESG": "live 'NIFTY100 ENHANCED ESG' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)"
+  "NIFTY DIVIDEND OPPORTUNITIES 50": "live 'NIFTY DIVIDEND OPPORTUNITIES 50' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
+  "NIFTY EV & NEW AGE AUTOMOTIVE": "live 'NIFTY EV & NEW AGE AUTOMOTIVE' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
+  "NIFTY FINANCIAL SERVICES": "live 'NIFTY FINANCIAL SERVICES' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
+  "NIFTY FINANCIAL SERVICES 25/50": "live 'NIFTY FINANCIAL SERVICES 25/50' -> dict keys=[] rows=0 (throttled or unsupported)",
+  "NIFTY GROWTH SECTORS 15": "live 'NIFTY GROWTH SECTORS 15' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)",
+  "NIFTY INDIA CONSUMPTION": "live 'NIFTY INDIA CONSUMPTION' -> dict keys=['data', 'marketStatus'] rows=0 (throttled or unsupported)"
  },
  "indices": {
   "INDIA VIX": [],
